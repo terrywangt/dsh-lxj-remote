@@ -3,8 +3,8 @@
   "catalog": {
     "schemaVersion": 1,
     "revision": "installer-1.0.0",
-    "issuedAt": 1794331795831,
-    "expiresAt": 1796750995831,
+    "issuedAt": 1794333692852,
+    "expiresAt": 1796752892852,
     "releases": [
       {
         "version": "1.0.0",
@@ -21,8 +21,8 @@
         ],
         "asset": {
           "url": "https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.0.0/dsh-lxj-remote-1.0.0.tgz",
-          "sha256": "5f379059e4e4d1c26198602fd8ed61b1fd5cfc55ec94bbe727ca14476952eef3",
-          "bytes": 11363899
+          "sha256": "85bd7eb1d7c03955334835d9c94a63af39228bbb31bdf2fdcea2261e33488a3e",
+          "bytes": 11365609
         },
         "targets": [
           {

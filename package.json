@@ -1,6 +1,6 @@
 {
-  "name": "@harness-remote/dsh-wechat-remote",
-  "version": "1.7.16",
+  "name": "dsh-lxj-remote",
+  "version": "1.0.0",
   "description": "连接微信小程序，随时与电脑上的助手协作。",
   "icon": "./lib/assets/wechat.svg",
   "private": true,
@@ -8,29 +8,77 @@
   "type": "module",
   "main": "lib/index.js",
   "exports": {
-    "./group-assistants": { "types": "./lib/group-assistants-component.d.ts", "default": "./lib/group-assistants-component.js" },
+    "./group-assistants": {
+      "types": "./lib/group-assistants-component.d.ts",
+      "default": "./lib/group-assistants-component.js"
+    },
     "./group-assistants/locale/*.json": "./lib/assistant-presets/locales/group/*.json",
-    "./resource-library": { "types": "./lib/resource-library-component.d.ts", "default": "./lib/resource-library-component.js" },
-    "./resource-library/protocol": { "types": "./lib/private-resources/protocol.d.ts", "default": "./lib/private-resources/protocol.js" },
+    "./resource-library": {
+      "types": "./lib/resource-library-component.d.ts",
+      "default": "./lib/resource-library-component.js"
+    },
+    "./resource-library/protocol": {
+      "types": "./lib/private-resources/protocol.d.ts",
+      "default": "./lib/private-resources/protocol.js"
+    },
     "./resource-library/locale/*.json": "./lib/private-resources/locales/*.json",
-    "./private-resource-prompt": { "types": "./lib/private-resources/native.d.ts", "default": "./lib/private-resources/native.js" },
-    "./history-import": { "types": "./lib/history-import/service.d.ts", "default": "./lib/history-import/service.js" },
-    "./scheduled-tasks/protocol": { "types": "./lib/scheduled-tasks/protocol.d.ts", "default": "./lib/scheduled-tasks/protocol.js" },
-    "./resource-library/chat-compaction": { "types": "./lib/private-resources/chat-compaction.d.ts", "default": "./lib/private-resources/chat-compaction.js" },
-    "./resource-library/chat-memory": { "types": "./lib/private-resources/chat-memory.d.ts", "default": "./lib/private-resources/chat-memory.js" },
-    "./features": { "types": "./lib/feature-access.d.ts", "default": "./lib/feature-access.js" },
-    "./clawbot": { "types": "./lib/clawbot-component.d.ts", "default": "./lib/clawbot-component.js" },
-    "./clawbot/protocol": { "types": "./lib/clawbot/contracts.d.ts", "default": "./lib/clawbot/contracts.js" },
-    "./clawbot/service": { "types": "./lib/clawbot/service.d.ts", "default": "./lib/clawbot/service.js" },
+    "./private-resource-prompt": {
+      "types": "./lib/private-resources/native.d.ts",
+      "default": "./lib/private-resources/native.js"
+    },
+    "./history-import": {
+      "types": "./lib/history-import/service.d.ts",
+      "default": "./lib/history-import/service.js"
+    },
+    "./scheduled-tasks/protocol": {
+      "types": "./lib/scheduled-tasks/protocol.d.ts",
+      "default": "./lib/scheduled-tasks/protocol.js"
+    },
+    "./resource-library/chat-compaction": {
+      "types": "./lib/private-resources/chat-compaction.d.ts",
+      "default": "./lib/private-resources/chat-compaction.js"
+    },
+    "./resource-library/chat-memory": {
+      "types": "./lib/private-resources/chat-memory.d.ts",
+      "default": "./lib/private-resources/chat-memory.js"
+    },
+    "./features": {
+      "types": "./lib/feature-access.d.ts",
+      "default": "./lib/feature-access.js"
+    },
+    "./clawbot": {
+      "types": "./lib/clawbot-component.d.ts",
+      "default": "./lib/clawbot-component.js"
+    },
+    "./clawbot/protocol": {
+      "types": "./lib/clawbot/contracts.d.ts",
+      "default": "./lib/clawbot/contracts.js"
+    },
+    "./clawbot/service": {
+      "types": "./lib/clawbot/service.d.ts",
+      "default": "./lib/clawbot/service.js"
+    },
     "./clawbot/locale/*.json": "./lib/clawbot/locales/*.json",
-    "./collaboration": { "types": "./lib/collaboration.d.ts", "default": "./lib/collaboration.js" },
+    "./collaboration": {
+      "types": "./lib/collaboration.d.ts",
+      "default": "./lib/collaboration.js"
+    },
     "./locale/*.json": "./lib/assistant-presets/locales/main/*.json",
     "./assistant-teacher/locale/*.json": "./lib/assistant-presets/locales/teacher/*.json",
     "./assistant-project/locale/*.json": "./lib/assistant-presets/locales/project/*.json",
     "./assistant-customizer/locale/*.json": "./lib/assistant-presets/locales/customizer/*.json",
-    "./assistant-teacher": { "types": "./lib/assistant-presets/builtin-teacher.d.ts", "default": "./lib/assistant-presets/builtin-teacher.js" },
-    "./assistant-project": { "types": "./lib/assistant-presets/builtin-project.d.ts", "default": "./lib/assistant-presets/builtin-project.js" },
-    "./assistant-customizer": { "types": "./lib/assistant-presets/builtin-customizer.d.ts", "default": "./lib/assistant-presets/builtin-customizer.js" },
+    "./assistant-teacher": {
+      "types": "./lib/assistant-presets/builtin-teacher.d.ts",
+      "default": "./lib/assistant-presets/builtin-teacher.js"
+    },
+    "./assistant-project": {
+      "types": "./lib/assistant-presets/builtin-project.d.ts",
+      "default": "./lib/assistant-presets/builtin-project.js"
+    },
+    "./assistant-customizer": {
+      "types": "./lib/assistant-presets/builtin-customizer.d.ts",
+      "default": "./lib/assistant-presets/builtin-customizer.js"
+    },
     ".": {
       "types": "./lib/index.d.ts",
       "default": "./lib/index.js"
@@ -161,7 +209,7 @@
     "test:dsh-protocol-compat": "node scripts/test-dsh-protocol-compat.mjs && node scripts/test-dsh-session-address.mjs && node scripts/test-session-presentation.mjs && node --test scripts/test-preset-settings.mjs scripts/test-preset-catalog.mjs scripts/test-session-controls-compat.mjs scripts/test-legacy-model-identity.mjs",
     "test:dsh-realtime-compat": "node scripts/test-dsh-realtime-compat.mjs && node --test scripts/test-native-question-compat.mjs && node scripts/test-assistant-stream.mjs && node scripts/test-agent-resources.mjs && node --test scripts/test-session-export.mjs scripts/test-session-directory-realtime.mjs scripts/test-cold-session-readonly.mjs scripts/test-passive-writer-notification.mjs scripts/test-reconnect-session-directory.mjs",
     "test:dsh-compatibility-api": "node scripts/test-dsh-compatibility-api.mjs && node --test scripts/test-host-compatibility.mjs scripts/test-installer-native-restore.mjs scripts/test-dsh-native-peer.mjs scripts/test-dsh-subagent-projection.mjs scripts/test-turn-activity-recorded-path.mjs scripts/test-tool-record-location.mjs",
-    "test:public-relay": "node --test scripts/test-tunnel-send-queue.mjs scripts/test-tunnel-request-lifecycle.mjs && node scripts/test-public-relay.mjs && node scripts/test-relay-liveness.mjs",
+    "test:public-relay": "node --test scripts/test-tunnel-send-queue.mjs scripts/test-tunnel-request-lifecycle.mjs && node scripts/test-public-relay.mjs && node scripts/test-relay-liveness.mjs && node scripts/test-relay-connection-storm.mjs",
     "test:pairing-clients": "node scripts/test-pairing-clients.mjs",
     "test:native-pairing": "node scripts/test-native-pairing.mjs",
     "test:native-preset-settings": "node scripts/test-native-preset-settings.mjs",
@@ -169,7 +217,8 @@
     "test:native-session-controls": "node scripts/test-native-session-controls.mjs",
     "test:released-mini-models": "node scripts/test-released-mini-models.mjs",
     "test:independent-transports": "node scripts/test-independent-transports.mjs",
-    "verify:installer": "node scripts/test-hybrid-package.mjs"
+    "verify:installer": "node scripts/test-hybrid-package.mjs",
+    "verify:live-relay": "node scripts/test-live-gate.mjs"
   },
   "dependencies": {
     "mdast-util-from-markdown": "2.0.3",
@@ -207,10 +256,18 @@
     "react": "^18.2.0"
   },
   "peerDependenciesMeta": {
-    "@deepseek-ai/dsh-session": { "optional": true },
-    "@deepseek-ai/dsh-session-format-catalog": { "optional": true },
-    "@deepseek-ai/dsh-scope": { "optional": true },
-    "@deepseek-ai/dsh-llm": { "optional": true },
+    "@deepseek-ai/dsh-session": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session-format-catalog": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-scope": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-llm": {
+      "optional": true
+    },
     "@deepseek-ai/cordis": {
       "optional": true
     },

@@ -14,7 +14,7 @@ const fixture = (t, overrides = {}) => {
   const artifacts = nativeReleaseFixture()
   const releases = { advice: { revision: 'test', component: 'plugin', targetVersion: '1.8.0', current: { pluginVersion: '1.7.12' } }, channel: 'stable', release: artifacts.release }
   const downloads = mockArtifactFetch(t, artifacts)
-  const state = { owner: 'dsh-wechat-remote', version: '1.7.12', running: false, enabled: true, installs: [] }
+  const state = { owner: 'dsh-lxj-remote-installer', version: '1.7.12', running: false, enabled: true, installs: [] }
   const manager = { listBundles: async () => [{ name: state.owner, version: state.version, enabled: state.enabled, installed: true }],
     installBundle: async (spec, options) => { state.installs.push({ spec, options }); state.version = '1.8.0'; return { application: 'restart-required', bundle: state.owner } } }
   const options = { home, scope: 'desktop', runningVersion: '1.7.12', manager: () => manager,
@@ -92,7 +92,7 @@ test('a task beginning during optional tool preparation remains running and prev
 })
 
 function coreFixture(f, bytes = coreArchive('1.8.0')) {
-  f.state.owner = '@harness-remote/dsh-wechat-remote'
+  f.state.owner = 'dsh-lxj-remote'
   Object.assign(f.releases.release.asset, integrity(bytes))
   f.artifacts.core = bytes
   return bytes
@@ -237,7 +237,7 @@ test('busy tasks before and after preparation never install or end a task', asyn
 test('native updates ignore peer data refreshes and keep each profile result independent', async t => {
   // Models peer writes at deterministic await boundaries, not real Desktop
   // execution or GUI acceptance. Only the current host's native manager runs.
-  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']) {
+  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-lxj-remote-installer', 'dsh-lxj-remote']) {
     await t.test(`${scope}/${owner}`, async t => {
       const f = fixture(t, { scope })
       const peer = scope === 'web' ? 'desktop' : 'web'
@@ -249,7 +249,7 @@ test('native updates ignore peer data refreshes and keep each profile result ind
       fs.writeFileSync(facts, JSON.stringify({ asOf: 1000, records: [] }))
       const peerJournal = JSON.stringify({ phase: 'installing', jobId: 'a'.repeat(32), targetVersion: '2.0.0' })
       fs.writeFileSync(journal, peerJournal)
-      if (owner.startsWith('@')) coreFixture(f)
+      if (owner === 'dsh-lxj-remote') coreFixture(f)
       const nativeInstall = f.manager.installBundle
       f.manager.installBundle = async (...args) => {
         fs.writeFileSync(facts, JSON.stringify({ asOf: 2000, records: [] }))
@@ -275,9 +275,9 @@ test('changed catalog, disabled owner, mixed owner, missing manager and unsuppor
     if (scenario === 'scope') { assert.equal(check.canInstall, false); continue }
     if (scenario === 'catalog') f.releases.advice.revision = 'different'
     if (scenario === 'disabled') f.state.enabled = false
-    if (scenario === 'mixed') f.manager.listBundles = async () => [{ name: 'dsh-wechat-remote', installed: true, enabled: true }, { name: '@harness-remote/dsh-wechat-remote', installed: true }]
+    if (scenario === 'mixed') f.manager.listBundles = async () => [{ name: 'dsh-lxj-remote-installer', installed: true, enabled: true }, { name: 'dsh-lxj-remote', installed: true }]
     if (scenario === 'missing') f.options.manager = () => undefined
-    if (scenario === 'owner') f.state.owner = '@harness-remote/dsh-wechat-remote'
+    if (scenario === 'owner') f.state.owner = 'dsh-lxj-remote'
     f.service.start(check.ticket)
     assert.equal((await finish(f.service)).phase, 'failed')
     assert.equal(f.state.installs.length, 0)
@@ -308,14 +308,14 @@ test('manual install during the final idle query cannot be overwritten or downgr
 })
 
 test('Web and Desktop update each single native owner in place from 1.7.10 and 1.7.13', async t => {
-  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']) for (const previous of ['1.7.10', '1.7.13']) {
+  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-lxj-remote-installer', 'dsh-lxj-remote']) for (const previous of ['1.7.10', '1.7.13']) {
     await t.test(`${scope}/${owner}/${previous}`, async t => {
       const f = fixture(t, { scope, runningVersion: previous })
       f.state.version = previous
       let downloadCount = 0, taskChecks = 0
-      const bytes = owner.startsWith('@') ? coreFixture(f) : f.artifacts.outer
+      const bytes = owner === 'dsh-lxj-remote' ? coreFixture(f) : f.artifacts.outer
       t.mock.method(globalThis, 'fetch', async url => {
-        assert.equal(url, owner.startsWith('@') ? f.releases.release.asset.url : f.releases.release.npmInstaller.url)
+        assert.equal(url, owner === 'dsh-lxj-remote' ? f.releases.release.asset.url : f.releases.release.npmInstaller.url)
         downloadCount++
         return new Response(bytes)
       })
@@ -506,8 +506,8 @@ test('recorded changed-on-failure permits a later explicit upgrade after target 
   f.state.version = '1.8.0'
   const directory = path.join(f.home, 'harness-remote-updates', 'native-desktop')
   fs.mkdirSync(directory, { recursive: true })
-  const receipt = { phase: 'unknown', jobId: 'e'.repeat(32), bundle: 'dsh-wechat-remote', targetVersion: '1.8.0', previousVersion: '1.7.12',
-    nativeResult: { application: 'failed', changed: true, bundle: 'dsh-wechat-remote', errorCode: 'package-failed' },
+  const receipt = { phase: 'unknown', jobId: 'e'.repeat(32), bundle: 'dsh-lxj-remote-installer', targetVersion: '1.8.0', previousVersion: '1.7.12',
+    nativeResult: { application: 'failed', changed: true, bundle: 'dsh-lxj-remote-installer', errorCode: 'package-failed' },
     message: '安装文件已改变，但新版启用未完成；未自动回退或重复安装。' }
   fs.writeFileSync(path.join(directory, 'status.json'), JSON.stringify(receipt))
   assert.equal((await f.service.status()).phase, 'failed', 'old unknown with definite failed native receipt is terminal failure')
@@ -546,7 +546,7 @@ test('profile journals are isolated and old Desktop outer-owner records still re
   t.after(() => web.dispose())
   assert.equal((await web.status()).phase, 'idle', 'Web never recovers another profile update')
   assert.equal(fs.existsSync(path.join(f.home, 'harness-remote-updates', 'native-web')), false, 'read-only recovery creates no files')
-  f.state.owner = '@harness-remote/dsh-wechat-remote'
+  f.state.owner = 'dsh-lxj-remote'
   assert.equal((await desktop.status()).phase, 'unknown', 'another owner cannot satisfy an old update receipt')
 })
 
@@ -556,7 +556,7 @@ test('interrupted preparation can be retried; interrupted installation requires 
     const directory = path.join(f.home, 'harness-remote-updates', 'native-web')
     fs.mkdirSync(directory, { recursive: true })
     fs.writeFileSync(path.join(directory, 'status.json'), JSON.stringify({ phase, jobId: 'a'.repeat(32),
-      bundle: 'dsh-wechat-remote', targetVersion: '1.8.0', previousVersion: '1.7.12' }))
+      bundle: 'dsh-lxj-remote-installer', targetVersion: '1.8.0', previousVersion: '1.7.12' }))
     const reopened = new NativeUpdateService(f.options)
     t.after(() => reopened.dispose())
     assert.equal((await reopened.status()).phase, phase === 'preparing' ? 'failed' : 'unknown')
@@ -572,7 +572,7 @@ test('confirmed old receipt cannot block a later manually upgraded and restarted
     const directory = path.join(f.home, 'harness-remote-updates', 'native-desktop')
     fs.mkdirSync(directory, { recursive: true })
     fs.writeFileSync(path.join(directory, 'status.json'), JSON.stringify({ phase, jobId: 'b'.repeat(32),
-      bundle: 'dsh-wechat-remote', targetVersion: '1.8.0', previousVersion: '1.7.13' }))
+      bundle: 'dsh-lxj-remote-installer', targetVersion: '1.8.0', previousVersion: '1.7.13' }))
     const reopened = new NativeUpdateService(f.options)
     t.after(() => reopened.dispose())
     assert.equal((await reopened.status()).phase, ['complete', 'restart-required'].includes(phase) ? 'idle' : 'unknown')
@@ -610,7 +610,7 @@ test('native applying can outlast ten minutes after verified download; no forced
     f.state.installs.push({ spec, options }); began()
     await new Promise(resolve => { finishNative = resolve })
     f.state.version = '1.8.0'
-    return { application: 'restart-required', bundle: 'dsh-wechat-remote' }
+    return { application: 'restart-required', bundle: 'dsh-lxj-remote-installer' }
   }
   f.service.start((await f.service.check()).ticket)
   await started
@@ -633,7 +633,7 @@ test('native download failure stays failed and installed version mismatch stays 
     f.manager.installBundle = async (spec, options) => {
       f.state.installs.push({ spec, options })
       return kind === 'wrong-version'
-        ? { application: 'restart-required', bundle: 'dsh-wechat-remote' }
+        ? { application: 'restart-required', bundle: 'dsh-lxj-remote-installer' }
         : { application: 'failed', error: { code: 'package-failed' }, packageResult: { kind } }
     }
     f.service.start((await f.service.check()).ticket)
@@ -653,7 +653,7 @@ test('exact preview targets use verified immutable preview archives; malformed, 
   f.releases.channel = 'preview'
   f.manager.installBundle = async (spec, options) => {
     f.state.installs.push({ spec, options }); f.state.version = target
-    return { application: 'restart-required', bundle: 'dsh-wechat-remote' }
+    return { application: 'restart-required', bundle: 'dsh-lxj-remote-installer' }
   }
   f.service.start((await f.service.check()).ticket)
   assert.equal((await finish(f.service)).phase, 'restart-required')

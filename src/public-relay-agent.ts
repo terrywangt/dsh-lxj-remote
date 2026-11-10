@@ -14,7 +14,12 @@ import {
 } from 'node:crypto'
 import {
   existsSync,
+  mkdirSync,
   readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
 } from 'node:fs'
 import { homedir, hostname } from 'node:os'
 import path from 'node:path'
@@ -28,16 +33,177 @@ import { writeNodeState as writePrivateJsonAtomic } from './node-storage.js'
 import { createAgentHttpProof } from './agent-http-proof.js'
 
 const CONFIG_PATH = path.join(adapterDshHome(), 'harness-remote-public.json')
-export const DEFAULT_PUBLIC_RELAY_ORIGIN = 'https://relay.xyxfood.xyz'
+export const DEFAULT_PUBLIC_RELAY_ORIGIN = 'https://h-wxrelay.1day.wang'
 const ROUTING_HEADER_BYTES = 18
 const MAX_AGENT_BUFFERED_BYTES = 2 * 1024 * 1024
 const AGENT_BUFFER_DRAIN_TIMEOUT_MS = 15_000
-const RELAY_PING_INTERVAL_MS = 25_000
-// Cellular/VPN handoffs can delay one control frame without breaking the TCP
-// path. The relay also probes every 25 seconds, so a 50-second response window
-// tolerates one transient miss while still bounding a genuinely half-open link.
-const RELAY_PONG_TIMEOUT_MS = 50_000
+const RELAY_PING_INTERVAL_MS = 20_000
+// A self-hosted relay behind a reverse proxy can delay one control frame
+// without breaking the TCP path. With a 20s client ping the pong window stays
+// comfortably below the relay's own liveness window, so the client never
+// declares a healthy link dead while the relay still considers it alive.
+const RELAY_PONG_TIMEOUT_MS = 45_000
 const RELAY_HANDSHAKE_TIMEOUT_MS = 15_000
+// Connection-storm controls. The upstream default reconnect schedule starts at
+// ~1s, so an enrollment that succeeds while the previous socket is still being
+// forgotten by the relay makes the new connection evict the old one and the old
+// close handler schedules yet another reconnect. A floor keeps every retry
+// outside that overlapping window; the cap is raised so a long relay outage
+// settles into one quiet probe instead of a re-enroll every 30 seconds.
+const RECONNECT_BACKOFF_FLOOR_MS = 5_000
+const RECONNECT_BACKOFF_CAP_MS = 120_000
+const ENROLL_MIN_INTERVAL_MS = 20_000
+// Pairing surfaces may re-issue a single-use ticket, but never faster than the
+// relay can still be processing the previous enrollment for this identity.
+const PAIRING_ENROLL_MIN_INTERVAL_MS = 5_000
+const CONNECT_SETTLE_MS = 3_000
+
+/**
+ * Cross-process relay transport lease.
+ *
+ * One nodeId may legitimately be opened by more than one process on the same
+ * machine (two plugin copies in one profile, a leftover gate process, or a
+ * Desktop host plus a CLI host that share ~/.dsh). Every holder enrolls the
+ * same identity and the relay only keeps one agent socket per node, so the
+ * holders evict each other forever: enroll → online → offline → enroll. The
+ * log pattern this replaces was 122 `ws online` events in 24 hours.
+ *
+ * The lease is a directory rename lock beside the node identity, so exactly
+ * one process per node enrolls and connects; the others idle. A crashed holder
+ * is taken over once its heartbeat goes stale.
+ */
+const RELAY_LEASE_TTL_MS = 45_000
+const RELAY_LEASE_RENEW_MS = 15_000
+const RELAY_LEASE_RETRY_MS = 5_000
+
+interface RelayLeaseOwner {
+  readonly pid: number
+  readonly ownerPid: number
+  readonly token: string
+  readonly acquiredAt: number
+  readonly heartbeatAt: number
+}
+
+export interface RelayLeaseOptions {
+  readonly leaseDir?: string
+  readonly now?: () => number
+  readonly pid?: number
+}
+
+export class RelayTransportLease {
+  readonly directory: string
+  private readonly now: () => number
+  private readonly pid: number
+  private readonly token = randomBytes(16).toString('hex')
+  private holder: { ownerPid: number; self: boolean } | null = null
+  private timer: NodeJS.Timeout | null = null
+
+  /** `leaseDir` defaults beside the caller's own base directory, i.e. next to
+   * the identity.json it guards, so the lease inherits the exact instance
+   * storage scope of the key and follows portable/test overrides. */
+  constructor(nodeId: string, identityDirectory: string, options: RelayLeaseOptions = {}) {
+    const base = options.leaseDir || path.join(identityDirectory, 'relay-leases')
+    this.directory = path.join(base, `${createHash('sha256').update(nodeId).digest('hex').slice(0, 32)}.lock`)
+    this.now = options.now || Date.now
+    this.pid = options.pid ?? process.pid
+  }
+
+  /** True when this process may enroll and connect; false means "another live
+   * process already owns this node, so stay quiet instead of fighting it". */
+  acquire(): boolean {
+    const current = this.read()
+    if (current && current.token !== this.token) {
+      // A holder keeps this blocked only while BOTH its process is alive and
+      // its heartbeat is fresh. A crashed (dead PID) or wedged (silent past
+      // the TTL) holder is replaced immediately, so a normal DSH restart never
+      // waits for a stale lease.
+      const blocked = (this.now() - current.heartbeatAt) <= RELAY_LEASE_TTL_MS
+        && RelayTransportLease.processAlive(current.ownerPid)
+      if (blocked) {
+        this.holder = { ownerPid: current.ownerPid, self: false }
+        return false
+      }
+      // Only a provably dead or silent holder may be replaced, and the entry is
+      // emptied before the rename so a rival contender also fails this round.
+      try { rmSync(this.directory, { recursive: true, force: true }) } catch { return false }
+    }
+    if (!this.write()) return this.read()?.token === this.token
+    this.holder = { ownerPid: this.pid, self: true }
+    return true
+  }
+
+  /** Keep the lease alive; reports whether we still hold it. */
+  renew(): boolean {
+    const current = this.read()
+    if (current && current.token === this.token) {
+      if (!this.write()) return false
+      this.holder = { ownerPid: this.pid, self: true }
+      return true
+    }
+    if (!current) {
+      if (this.write()) { this.holder = { ownerPid: this.pid, self: true }; return true }
+    }
+    this.holder = current ? { ownerPid: current.ownerPid, self: false } : null
+    return false
+  }
+
+  release(): void {
+    if (this.timer) { clearInterval(this.timer); this.timer = null }
+    const current = this.read()
+    if (current && current.token === this.token) {
+      try { rmSync(this.directory, { recursive: true, force: true }) } catch { /* shared cleanup */ }
+    }
+    this.holder = null
+  }
+
+  startRenewal(onLost: () => void): void {
+    if (this.timer) return
+    this.timer = setInterval(() => {
+      if (!this.renew()) onLost()
+    }, RELAY_LEASE_RENEW_MS)
+    this.timer.unref?.()
+  }
+
+  private static processAlive(pid: number): boolean {
+    if (!Number.isSafeInteger(pid) || pid <= 0) return false
+    if (pid === process.pid) return true
+    try { process.kill(pid, 0); return true }
+    catch (error) { return (error as NodeJS.ErrnoException).code !== 'ESRCH' }
+  }
+
+  private read(): RelayLeaseOwner | null {
+    try {
+      const entries = readdirSync(this.directory).filter(name => /^owner-[a-f0-9]{32}\.json$/.test(name))
+      if (entries.length !== 1) return null
+      const value = JSON.parse(readFileSync(path.join(this.directory, entries[0]), 'utf8')) as Partial<RelayLeaseOwner>
+      if (typeof value.token !== 'string' || typeof value.heartbeatAt !== 'number'
+          || typeof value.ownerPid !== 'number' || typeof value.acquiredAt !== 'number') return null
+      return value as RelayLeaseOwner
+    } catch { return null }
+  }
+
+  private write(): boolean {
+    const stamp = this.now()
+    try {
+      mkdirSync(path.dirname(this.directory), { recursive: true, mode: 0o700 })
+      const staging = `${this.directory}.pending-${this.pid}-${this.token.slice(0, 8)}`
+      rmSync(staging, { recursive: true, force: true })
+      mkdirSync(staging, { mode: 0o700 })
+      // Written without a BOM and atomically renamed, so a reader never sees a
+      // half-written owner document.
+      writeFileSync(path.join(staging, `owner-${this.token}.json`), JSON.stringify({
+        pid: this.pid, ownerPid: this.pid, token: this.token, acquiredAt: stamp, heartbeatAt: stamp,
+      }), 'utf8')
+      if (existsSync(this.directory)) {
+        const existing = this.read()
+        if (existing && existing.token !== this.token) { rmSync(staging, { recursive: true, force: true }); return false }
+        rmSync(this.directory, { recursive: true, force: true })
+      }
+      renameSync(staging, this.directory)
+      return true
+    } catch { return false }
+  }
+}
 
 function transportDelay(value: number | undefined, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) && value > 0
@@ -126,7 +292,13 @@ export interface PublicRelayAgentOptions {
     readonly pingIntervalMs?: number
     readonly pongTimeoutMs?: number
     readonly handshakeTimeoutMs?: number
+    readonly connectSettleMs?: number
   }
+  /** Cross-process relay transport lease. Production (the host gate) enables
+   * it so a second holder of the same node identity cannot evict the live
+   * relay socket; it defaults to off so single-process fixtures, which freely
+   * reuse one identity file across restarts, keep their existing semantics. */
+  readonly lease?: { readonly enabled: boolean; readonly directory?: string }
 }
 
 export function agentNodeIdForPublicKey(publicKeyPem: string): string {
@@ -217,6 +389,18 @@ export class PublicRelayAgent {
     expiresAt?: number
     remoteAccess?: RemoteAccessStatus
   }> | null = null
+  /** Last successful enrollment, reused only to rate-limit pairing refreshes. */
+  private lastEnrollment: {
+    at: number
+    ticket?: string
+    expiresAt?: number
+    remoteAccess?: RemoteAccessStatus
+  } | null = null
+  /** True while enrollAndConnect holds the lifecycle, so a pairing refresh can
+   * never open a second transport racing the scheduled reconnect. */
+  private lifecycleInFlight = false
+  /** Cross-process guard, one per node identity; null when disabled. */
+  private lease: RelayTransportLease | null
   private status: AgentStatus
 
   constructor(config: PublicRelayConfig, options: PublicRelayAgentOptions) {
@@ -225,6 +409,11 @@ export class PublicRelayAgent {
     this.fetchImpl = options.fetchImpl || fetch
     this.identityPath = options.identityPath || defaultAgentIdentityPath()
     this.identity = loadOrCreateAgentIdentity(this.identityPath)
+    // Opt-in: only the host gate passes lease.enabled so fixtures that reuse
+    // one identity file across restarts keep their existing semantics.
+    this.lease = options.lease?.enabled === true ? new RelayTransportLease(
+      this.identity.nodeId, path.dirname(this.identityPath),
+      options.lease.directory ? { leaseDir: options.lease.directory } : {}) : null
     this.status = {
       enabled: true,
       state: 'offline',
@@ -275,6 +464,22 @@ export class PublicRelayAgent {
     await this.enrollAndConnect()
   }
 
+  /** Another live process owns this node's relay transport: stay silent
+   * instead of enrolling and evicting it. Re-check on a fixed quiet cadence,
+   * never with the error backoff, and never touch the socket or ticket state
+   * the holder owns. */
+  private yieldLease(): void {
+    if (this.stopped || this.reconnectTimer) return
+    // Never a hard error: the node IS reachable through the holder. Reporting
+    // it keeps the settings page honest instead of showing a dead connection.
+    this.update({ state: 'offline', lastError: '此节点的中继连接由另一宿主进程持有' })
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null
+      if (!this.stopped) void this.enrollAndConnect()
+    }, RELAY_LEASE_RETRY_MS)
+    this.reconnectTimer.unref?.()
+  }
+
   /** Background status can reuse a ticket; an explicit pairing surface must
    * refresh because an unexpired single-use ticket may already be consumed.
    * Enrollment retains the existing identity and owner (except revoked keys).
@@ -282,6 +487,13 @@ export class PublicRelayAgent {
   async ensurePairingTicket(minValidityMs = 60_000, options: { readonly refresh?: boolean } = {}): Promise<AgentStatus> {
     if (!options.refresh && this.status.pairingTicket && (this.status.pairingExpiresAt || 0) > Date.now() + minValidityMs) {
       return this.snapshot()
+    }
+    // A process that does not own the relay transport must not enroll either:
+    // enrollment re-issues the single-use ticket the holder's socket was built
+    // on and starts a second connection for one nodeId. Degrade to "no new
+    // code" instead of racing the holder for the relay's single agent slot.
+    if (this.lease && !this.lease.acquire()) {
+      throw new Error('此节点的中继连接由另一宿主进程持有，请在该进程中配对，或结束多余进程后重试')
     }
     const body = await this.enrollWithIdentityRecovery()
     this.update({
@@ -292,7 +504,7 @@ export class PublicRelayAgent {
     // Rotation invalidates the entire transport, not just the QR identity.
     // Normal startup already connects after enrollment; a live pairing refresh
     // must do the same when it retired the previous identity's socket.
-    if (!this.stopped && !this.socket) {
+    if (!this.stopped && !this.socket && !this.lifecycleInFlight) {
       if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
       this.reconnectTimer = null
       this.connect()
@@ -307,6 +519,7 @@ export class PublicRelayAgent {
     this.reconnectTimer = null
     this.clearHeartbeat?.()
     this.clearHeartbeat = null
+    this.lease?.release()
     this.socket?.close(1000, 'Agent stopped')
     this.socket = null
     this.update({ state: 'offline' })
@@ -314,9 +527,38 @@ export class PublicRelayAgent {
 
   private async enrollAndConnect(): Promise<void> {
     const revision = this.lifecycleRevision
+    // Cross-process guard first: a second holder of the same identity would
+    // enroll the same nodeId and evict the live relay socket.
+    if (this.lease && !this.lease.acquire()) {
+      this.yieldLease()
+      return
+    }
+    this.lease?.startRenewal(() => {
+      if (this.stopped || revision !== this.lifecycleRevision) return
+      // Losing the lease means a live process claimed it, and a claim only
+      // happens after the previous holder's heartbeat went silent — usually a
+      // crashed or killed host. Close our socket so the relay frees the node,
+      // then retry under the new owner.
+      if (this.reconnectTimer) clearTimeout(this.reconnectTimer)
+      this.reconnectTimer = null
+      this.clearHeartbeat?.()
+      this.clearHeartbeat = null
+      const previous = this.socket
+      this.socket = null
+      previous?.terminate()
+      try { this.options.onTransportDisconnect?.() } catch { /* isolation boundary */ }
+      this.lastEnrollment = null
+      this.update({ state: 'offline', lastError: '中继租约已转移给另一宿主进程' })
+      void this.enrollAndConnect()
+    })
+    this.lifecycleInFlight = true
     try {
       this.update({ state: 'enrolling', lastError: undefined })
-      const body = await this.enrollWithIdentityRecovery()
+      // Background reconnect may reuse the enrollment the relay already
+      // accepted. Rotating the single-use ticket on every reconnect is what
+      // invalidates a QR code a phone is seconds away from claiming — the
+      // user-visible half of the "扫码后连不上" report.
+      const body = await this.enrollWithIdentityRecovery({ allowCached: true })
       if (this.stopped || revision !== this.lifecycleRevision) return
       this.update({
         pairingTicket: body.ticket,
@@ -329,24 +571,26 @@ export class PublicRelayAgent {
       if (this.stopped || revision !== this.lifecycleRevision) return
       this.update({ state: 'offline', lastError: error instanceof Error ? error.message : String(error) })
       this.scheduleReconnect()
+    } finally {
+      if (revision === this.lifecycleRevision) this.lifecycleInFlight = false
     }
   }
 
-  private async enrollWithIdentityRecovery(): Promise<{
+  private async enrollWithIdentityRecovery(options: { readonly allowCached?: boolean } = {}): Promise<{
     ticket?: string
     expiresAt?: number
     remoteAccess?: RemoteAccessStatus
   }> {
     const attemptedNodeId = this.identity.nodeId
     try {
-      return await this.enroll()
+      return await this.enroll(options)
     } catch (error) {
       if (!(error instanceof RelayEnrollmentError) || error.code !== 'agent_revoked') throw error
       // Deleting a node intentionally tombstones its old public key. Generate
       // a fresh identity rather than resurrecting that revoked credential.
       // The node remains unowned until a user scans the new pairing ticket.
       if (this.identity.nodeId === attemptedNodeId) this.rotateRevokedIdentity()
-      return this.enroll()
+      return this.enroll({ allowCached: false })
     }
   }
 
@@ -356,6 +600,9 @@ export class PublicRelayAgent {
     const previous = this.socket
     this.socket = null
     previous?.terminate()
+    // A new key owns a new node: never let the old ticket or the old
+    // enrollment rate limit be replayed against the fresh identity.
+    this.lastEnrollment = null
     try { this.options.onTransportDisconnect?.() } catch { /* isolation boundary */ }
     this.identity = replaceAgentIdentity(this.identityPath)
     this.options.onIdentityChange?.()
@@ -370,12 +617,24 @@ export class PublicRelayAgent {
     })
   }
 
-  private enroll(): Promise<{
+  private enroll(options: { readonly allowCached?: boolean } = {}): Promise<{
     ticket?: string
     expiresAt?: number
     remoteAccess?: RemoteAccessStatus
   }> {
     if (this.enrollment) return this.enrollment
+    // A pairing refresh on a live transport reuses the enrollment the relay
+    // just accepted. Re-POST /v1/agents/enroll while the relay still holds
+    // this node's socket is what makes the relay (or an intermediate proxy)
+    // treat the identity as double-registering and drop the connection a few
+    // seconds later; the close handler of the evicted socket then schedules
+    // yet another reconnect. Background reconnects (no socket) always POST.
+    const cached = this.lastEnrollment
+    if (options.allowCached === true && cached
+        && Date.now() - cached.at < ENROLL_MIN_INTERVAL_MS
+        && (cached.expiresAt || 0) > Date.now() + 30_000) {
+      return Promise.resolve({ ticket: cached.ticket, expiresAt: cached.expiresAt, remoteAccess: cached.remoteAccess })
+    }
     const pending = (async () => {
       const pathname = '/v1/agents/enroll'
       const serialized = JSON.stringify({
@@ -413,11 +672,13 @@ export class PublicRelayAgent {
         expiresAt?: number
         remoteAccess?: unknown
       }
-      return {
+      const result = {
         ticket: body.ticket,
         expiresAt: body.expiresAt,
         remoteAccess: normalizeRemoteAccess(body.remoteAccess),
       }
+      this.lastEnrollment = { at: Date.now(), ...result }
+      return result
     })()
     this.enrollment = pending
     return pending.finally(() => {
@@ -453,12 +714,14 @@ export class PublicRelayAgent {
     this.socket = socket
     let pingTimer: NodeJS.Timeout | null = null
     let pongTimer: NodeJS.Timeout | null = null
+    let settleTimer: NodeJS.Timeout | null = null
     let pendingPing: Buffer | null = null
     let transportFailure: string | undefined
     const clearHeartbeat = (): void => {
       if (pingTimer) clearTimeout(pingTimer)
       if (pongTimer) clearTimeout(pongTimer)
-      pingTimer = pongTimer = null
+      if (settleTimer) clearTimeout(settleTimer)
+      pingTimer = pongTimer = settleTimer = null
       pendingPing = null
       if (this.clearHeartbeat === clearHeartbeat) this.clearHeartbeat = null
     }
@@ -494,7 +757,17 @@ export class PublicRelayAgent {
     }
     socket.on('open', () => {
       if (this.socket !== socket || this.stopped) return
-      this.reconnectAttempt = 0
+      // Do not credit a connection that has not yet survived the window in
+      // which a duplicate-enrollment eviction would arrive. Resetting the
+      // attempt counter on `open` was what reset every reconnect back to the
+      // 1-second floor during a flap loop.
+      const settle = setTimeout(() => {
+        settleTimer = null
+        if (this.socket !== socket || this.stopped) return
+        this.reconnectAttempt = 0
+      }, transportDelay(this.options.transportTiming?.connectSettleMs, CONNECT_SETTLE_MS))
+      settleTimer = settle
+      settle.unref?.()
       this.update({ state: 'online', lastError: undefined })
       schedulePing()
     })
@@ -562,7 +835,15 @@ export class PublicRelayAgent {
 
   private scheduleReconnect(): void {
     if (this.stopped || this.reconnectTimer) return
-    const delay = Math.min(1000 * 2 ** this.reconnectAttempt, 30_000) + Math.floor(Math.random() * 500)
+    // The previous schedule started at ~1s and only grew while the link stayed
+    // down. That is wrong for the observed failure mode: an open socket that is
+    // evicted seconds later counted as a success, so every flap restarted the
+    // ladder and the node hammered enroll+connect three times in three seconds.
+    // A floor keeps retries outside the duplicate-enrollment window, the cap
+    // stops long outages from polling every 30s, and the attempt counter now
+    // only resets after a socket has survived the settle window.
+    const delay = Math.min(RECONNECT_BACKOFF_FLOOR_MS * 2 ** this.reconnectAttempt, RECONNECT_BACKOFF_CAP_MS)
+      + Math.floor(Math.random() * 500)
     this.reconnectAttempt += 1
     this.reconnectTimer = setTimeout(() => {
       this.reconnectTimer = null

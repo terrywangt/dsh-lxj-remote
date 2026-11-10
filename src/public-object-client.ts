@@ -24,8 +24,12 @@ interface ObjectCompletion {
 }
 
 export const DEFAULT_TRUSTED_OBJECT_ORIGINS = Object.freeze([
-  'https://harness-remote-e2ee-cn-shanghai-7f4c9d2a.oss-cn-shanghai.aliyuncs.com',
-  'https://objects-sh.xyxfood.xyz',
+  // Fork policy: the encrypted object store lives behind the SAME self-hosted
+  // relay origin (reverse-proxied bucket or the relay's own /v1 objects API).
+  // Upstream's third-party bucket is deliberately NOT trusted here, so a fresh
+  // install never contacts a server the operator does not own. A different
+  // storage hostname must be listed explicitly in public.json objectOrigins.
+  'https://h-wxrelay.1day.wang',
 ])
 const OBJECT_ID_PATTERN = /^[A-Za-z0-9_-]{20,64}$/
 const SAFE_UPLOAD_HEADERS = new Set(['content-type', 'x-oss-forbid-overwrite'])

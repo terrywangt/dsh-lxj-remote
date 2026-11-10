@@ -17,7 +17,7 @@ import { chooseDsh, validateDshCli, resolveHome, mayHaveRunningDsh } from './dsh
 const root = fileURLToPath(new URL('../', import.meta.url))
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 export async function selectRelease(host, assetsRoot = path.join(root, 'assets'), repair = false,
-  fetchCatalog = () => boundedFetch('https://relay.xyxfood.xyz/v1/update-policy', 256 * 1024), fetchPackage = fetch, bundledOnly = false) {
+  fetchCatalog = () => boundedFetch('https://h-wxrelay.1day.wang/v1/update-policy', 256 * 1024), fetchPackage = fetch, bundledOnly = false) {
   const current = { agentKind: 'dsh', agentVersion: host.dshVersion, pluginVersion: host.pluginVersion,
     platform: { win32: 'windows', darwin: 'macos', linux: 'linux' }[host.platform], arch: host.arch }
   const pinned = JSON.parse(fs.readFileSync(path.join(assetsRoot, 'release.json'), 'utf8'))
@@ -155,6 +155,6 @@ export function parseArguments(args) {
 }
 if (process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2)
-  if (args.includes('--help') || args.includes('-h')) console.log('安装或升级 DSH Web 微信连接插件：npx -y dsh-wechat-remote@latest\n仅在 DSH Web 已正常停止时安装；后台服务需先暂停自动重启。请在相同系统账号下执行。Windows 可使用 npx.cmd。\n原生管理器或早期命令行安装均替换原有包，不添加第二份插件。不安装、更新或停止 Desktop。\n可选：--profile <名称>（默认 web）；--home <DSH 数据目录>；--dsh-cli <DSH 的 lib/bin.js>；--repair（重新安装，不降级）；--no-start（安装后由原后台服务启动 Web）')
+  if (args.includes('--help') || args.includes('-h')) console.log('安装或升级 DSH Web 微信连接插件：npx -y dsh-lxj-remote-installer@latest\n仅在 DSH Web 已正常停止时安装；后台服务需先暂停自动重启。请在相同系统账号下执行。Windows 可使用 npx.cmd。\n原生管理器或早期命令行安装均替换原有包，不添加第二份插件。不安装、更新或停止 Desktop。\n可选：--profile <名称>（默认 web）；--home <DSH 数据目录>；--dsh-cli <DSH 的 lib/bin.js>；--repair（重新安装，不降级）；--no-start（安装后由原后台服务启动 Web）')
   else Promise.resolve().then(() => install(parseArguments(args))).catch(error => { console.error(error.message); process.exitCode = 1 })
 }

@@ -5,7 +5,7 @@
  * or withdrawn releases exclude a target. Never guess failures from missing tests.
  */
 export const UPDATE_SCHEMA = 1
-export const RELEASE_REPOSITORY = 'https://github.com/martinbear1/dsh-wechat-remote'
+export const RELEASE_REPOSITORY = 'https://github.com/terrywangt/dsh-lxj-remote'
 export type Severity = 'none' | 'info' | 'recommended' | 'required' | 'unknown'
 export interface RuntimeVersion {
   agentKind: string; agentVersion: string; pluginVersion: string; platform: string; arch?: string
@@ -74,15 +74,15 @@ export function trustedReleaseAsset(asset: Release['asset'], version: string): b
   try {
     const u = new URL(asset.url)
     return u.origin === 'https://github.com' && !u.username && !u.password && !u.search && !u.hash
-      && u.pathname.startsWith(`/martinbear1/dsh-wechat-remote/releases/download/v${version}/`)
-      && /^[-A-Za-z0-9_.]+\.tgz$/.test(u.pathname.slice(`/martinbear1/dsh-wechat-remote/releases/download/v${version}/`.length))
+      && u.pathname.startsWith(`/terrywangt/dsh-lxj-remote/releases/download/v${version}/`)
+      && /^[-A-Za-z0-9_.]+\.tgz$/.test(u.pathname.slice(`/terrywangt/dsh-lxj-remote/releases/download/v${version}/`.length))
   } catch { return false }
 }
 export function trustedNpmInstaller(source: Release['npmInstaller']): boolean {
   if (!source || !validVersion(source.version) || !/^[a-f0-9]{64}$/.test(source.sha256)
       || !Number.isSafeInteger(source.bytes) || source.bytes < 1 || source.bytes > 32 * 1024 * 1024) return false
   // Exact immutable package/version, never a dist-tag, user URL or arbitrary mirror.
-  return source.url === `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${source.version}.tgz`
+  return source.url === `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${source.version}.tgz`
 }
 export function validateCatalog(value: unknown): UpdateCatalog {
   const c = value as UpdateCatalog

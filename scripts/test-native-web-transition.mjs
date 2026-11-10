@@ -17,7 +17,7 @@ const [cliArg, oldArg, nextArg, rootArg, transport = 'file', scenario = 'replace
 assert(cliArg && oldArg && nextArg && rootArg, 'DSH_BIN OLD_OUTER_TGZ NEW_OUTER_TGZ NEW_FIXTURE_ROOT required')
 assert(['file', 'http', 'registry'].includes(transport), 'invalid artifact transport')
 assert(['replace', 'reinstall-core', 'reinstall-outer'].includes(scenario), 'invalid native scenario')
-const reinstall = scenario !== 'replace', baselineOwner = scenario === 'reinstall-core' ? '@harness-remote/dsh-wechat-remote' : 'dsh-wechat-remote'
+const reinstall = scenario !== 'replace', baselineOwner = scenario === 'reinstall-core' ? 'dsh-lxj-remote' : 'dsh-lxj-remote-installer'
 assert(['darwin', 'linux'].includes(process.platform))
 const cli = fs.realpathSync(cliArg), baseline = fs.realpathSync(oldArg), candidate = fs.realpathSync(nextArg)
 const root = path.resolve(rootArg)
@@ -30,7 +30,7 @@ const member = (file, entry) => {
 }
 const oldManifest = JSON.parse(member(baseline, 'package/package.json'))
 const nextManifest = JSON.parse(member(candidate, 'package/package.json'))
-const owner = 'dsh-wechat-remote', otherOwner = '@harness-remote/dsh-wechat-remote'
+const owner = 'dsh-lxj-remote-installer', otherOwner = 'dsh-lxj-remote'
 assert.equal(oldManifest.name, owner); assert.equal(nextManifest.name, owner)
 assert.equal(oldManifest.version, '1.7.13'); assert.notEqual(nextManifest.version, oldManifest.version)
 assert.equal(sha(fs.readFileSync(baseline)), '411bc900c9204aae1a0531761827ac0541af0c0ea763c83679890efe7d429c13')
@@ -40,7 +40,7 @@ fs.mkdirSync(root, { recursive: true, mode: 0o700 })
 const home = path.join(root, 'home'), profile = path.join(home, 'profiles/web')
 const json = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null, 2), { mode: 0o600 })
 fs.mkdirSync(home)
-json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
+json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
 const report = { fixture: root, platform: process.platform, dsh: dsh.version,
   from: oldManifest.version, to: nextManifest.version, targetSha256: sha(fs.readFileSync(candidate)),
   scope: 'actual native Add/removal backend and full isolated Web host; not GUI automation or user acceptance', transport, scenario,
@@ -75,7 +75,7 @@ Object.assign(env, { DSH_PORT: String(port), WECHAT_GATE_PORT: String(port + 2),
 // upgrade or prove that the frozen 1.7.13 update button can perform one.
 let source = candidate, archiveServer, archiveGets = 0, metadataGets = 0, registry
 if (transport === 'http' || transport === 'registry') {
-  const route = `/dsh-wechat-remote-${nextManifest.version}.tgz`
+  const route = `/dsh-lxj-remote-installer-${nextManifest.version}.tgz`
   archiveServer = http.createServer((req, res) => {
     if (transport === 'registry' && [`/${owner}`, `/${owner}/latest`, `/${owner}/${nextManifest.version}`].includes(req.url)) {
       metadataGets++

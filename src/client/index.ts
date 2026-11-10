@@ -176,7 +176,7 @@ export function apply(ctx: HarnessRemoteClientContext): void {
     // Native GUI installs use the wrapper name; the Web one-line installer
     // registers the embedded core. Both owners use the same component/API.
     ctx.slots.inject(name, () => {
-      const disposers = ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote'].map(key => {
+      const disposers = ['dsh-lxj-remote-installer', 'dsh-lxj-remote'].map(key => {
         const readOwnerInstallation = () => readInstallation(key)
         return name === 'plugins.bundle.activation'
           ? ctx.slots.register({ name, key, inject: () => ({ readInstallation }) }, InstallationResultPanel)

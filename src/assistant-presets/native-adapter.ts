@@ -50,7 +50,7 @@ const moduleName = '@deepseek-ai/dsh-agent-preset'
 const personaName = '@deepseek-ai/dsh-persona'
 const artifactRoot = 'assistant-native-bundles'
 export const COLLABORATION_COMPONENT_ID = 'harness-collaboration'
-const collaborationModules = ['dsh-wechat-remote/collaboration', '@harness-remote/dsh-wechat-remote/collaboration'] as const
+const collaborationModules = ['dsh-lxj-remote-installer/collaboration', 'dsh-lxj-remote/collaboration'] as const
 /** The Desktop bundle contains this core under native/. Its public outer
  * self-reference must be used by separately installed preset packages; the CLI
  * core instead owns its scoped npm name. Never infer this from another profile. */

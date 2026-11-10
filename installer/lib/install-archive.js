@@ -57,7 +57,7 @@ function auditArchive(archive, release) {
   const files = visitArchive(archive, (name, data) => {
     if (name === "package/package.json") manifest = readManifest(data);
   });
-  if (!manifest || manifest.name !== "@harness-remote/dsh-wechat-remote" || manifest.version !== release.version || !files.has("package/lib/index.js") || !files.has("package/lib/client.js")) throw new Error("\u66F4\u65B0\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5165\u53E3\u4E0D\u5339\u914D");
+  if (!manifest || manifest.name !== "dsh-lxj-remote" || manifest.version !== release.version || !files.has("package/lib/index.js") || !files.has("package/lib/client.js")) throw new Error("\u66F4\u65B0\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5165\u53E3\u4E0D\u5339\u914D");
   const scripts = manifest.scripts;
   if (["preinstall", "install", "postinstall", "prepare"].some((name) => scripts?.[name])) throw new Error("\u66F4\u65B0\u5305\u5305\u542B\u4E0D\u5141\u8BB8\u7684\u5B89\u88C5\u811A\u672C");
 }
@@ -68,7 +68,7 @@ function auditNativeArchive(archive, version) {
     if (name === "package/assets/release.json") metadata = readManifest(data);
     if (name === "package/assets/plugin.tgz") plugin = Buffer.from(data);
   });
-  if (manifest?.name !== "dsh-wechat-remote" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || !files.has("package/native/lib/index.js") || !files.has("package/native/lib/client.js") || !files.has("package/cordis.patch.yml") || !plugin || metadata?.version !== version || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) {
+  if (manifest?.name !== "dsh-lxj-remote-installer" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || !files.has("package/native/lib/index.js") || !files.has("package/native/lib/client.js") || !files.has("package/cordis.patch.yml") || !plugin || metadata?.version !== version || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) {
     throw new Error("\u539F\u751F\u5B89\u88C5\u5305\u7ED3\u6784\u6216\u7248\u672C\u4E0D\u5339\u914D");
   }
   const release = metadata.catalog?.releases?.find((row) => row.version === version);
@@ -82,7 +82,7 @@ function checkedNativeSource(source, version) {
   const actual = fs.realpathSync(source);
   const read = (name) => JSON.parse(fs.readFileSync(path.join(actual, name), "utf8"));
   const manifest = read("package.json");
-  if (manifest.name !== "dsh-wechat-remote" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) throw new Error("\u5B89\u88C5\u5305\u4E0E\u76EE\u6807\u7248\u672C\u4E0D\u4E00\u81F4");
+  if (manifest.name !== "dsh-lxj-remote-installer" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) throw new Error("\u5B89\u88C5\u5305\u4E0E\u76EE\u6807\u7248\u672C\u4E0D\u4E00\u81F4");
   const metadata = read("assets/release.json");
   const release = metadata.catalog?.releases?.find((row) => row.version === version);
   const bytes = fs.readFileSync(path.join(actual, "assets/plugin.tgz"));

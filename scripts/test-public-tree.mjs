@@ -31,7 +31,7 @@ test('user documentation and template paths are accepted', t => {
   assert.equal(check(t, {
     'README.md': 'Install the latest release. C:/Users/<name>/project',
     'docs/NATIVE-INSTALL.md': 'Restart the host after installation.',
-    'installer/README.md': 'npx dsh-wechat-remote@latest',
+    'installer/README.md': 'npx dsh-lxj-remote-installer@latest',
   }).status, 0)
 })
 

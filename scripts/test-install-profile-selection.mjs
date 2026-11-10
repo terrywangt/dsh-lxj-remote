@@ -13,7 +13,7 @@ import { build } from 'esbuild'
 
 const require = createRequire(import.meta.url)
 const targetVersion = '1.7.14-test.1'
-const packages = ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']
+const packages = ['dsh-lxj-remote-installer', 'dsh-lxj-remote']
 const bundle = await build({ entryPoints: [fileURLToPath(new URL('../src/install-profile.ts', import.meta.url))],
   bundle: true, write: false, platform: 'node', format: 'cjs', target: 'node22',
   plugins: [{ name: 'synthetic-process', setup(builder) {
@@ -117,7 +117,7 @@ for (const packageName of packages) {
   for (const owner of ['missing', 'foreign', 'mixed']) {
     test(`${packageName}: ${owner} installation owner is still rejected while disabled`, async t => {
       const f = fixture(t, packageName, 'disabled', { owner })
-      await assert.rejects(f.run(), /唯一的原生安装|两种微信连接/)
+      await assert.rejects(f.run(), /唯一的原生安装|两种插件安装包|登记了上游插件/)
       f.verifyUntouched()
     })
   }

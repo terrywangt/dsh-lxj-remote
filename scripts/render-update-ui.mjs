@@ -62,7 +62,7 @@ for (const scene of scenes) {
     status: scene.phase === 'restart-required' && !scene.detail ? { phase: 'restart-required', targetVersion: version } : { phase: 'idle', message: '' },
     error: '', checking: false }) })
   const markup = renderToStaticMarkup(createElement('main', null,
-    scene.detail ? null : createElement(InstallationResultPanel, { packageName: 'dsh-wechat-remote', readInstallation: noAction, onDismiss: noAction, onOpenDetails: noAction }),
+    scene.detail ? null : createElement(InstallationResultPanel, { packageName: 'dsh-lxj-remote-installer', readInstallation: noAction, onDismiss: noAction, onOpenDetails: noAction }),
     createElement('section', { className: 'updateCard', 'aria-label': '插件更新' },
       createElement('h3', { className: 'updateHeading' }, '插件更新'), current)))
   const html = path.join(out, scene.name + '.html'), screenshot = path.join(out, scene.name + '.png')

@@ -95,15 +95,15 @@ try {
         prefix: prefix + '\n\n' + assistantGuidance(assistant.definition), complete: false, includeRuntimeContext: true } },
       'only stock role neutralization, appended profession methods and explicit native runtime policy flags change; suffix and all other persona fields survive')
     }
-    assert.deepEqual(transformed.at(-1), { id: 'harness-collaboration', name: '@harness-remote/dsh-wechat-remote/collaboration' })
+    assert.deepEqual(transformed.at(-1), { id: 'harness-collaboration', name: 'dsh-lxj-remote/collaboration' })
     assert.deepEqual(nativeStandard, untouchedNativeStandard, 'derivation cannot mutate the shared native standard declaration')
     transformed[0].config = { changed: true }
     assert.deepEqual(nativeStandard, untouchedNativeStandard, 'derived declarations do not share mutable nested objects with their source')
   }
   const nativePresetSources = Object.fromEntries([...originalPresetSources].map(([name, bytes]) => [name, createHash('sha256').update(bytes).digest('hex')]))
-  const capabilityPackage = path.join(work, 'dsh/node_modules/@harness-remote/dsh-wechat-remote')
+  const capabilityPackage = path.join(work, 'dsh/node_modules/dsh-lxj-remote')
   fs.mkdirSync(capabilityPackage, { recursive: true })
-  fs.writeFileSync(path.join(capabilityPackage, 'package.json'), JSON.stringify({ name: '@harness-remote/dsh-wechat-remote', type: 'module', exports: { './collaboration': './collaboration.js' } }))
+  fs.writeFileSync(path.join(capabilityPackage, 'package.json'), JSON.stringify({ name: 'dsh-lxj-remote', type: 'module', exports: { './collaboration': './collaboration.js' } }))
   fs.copyFileSync(fileURLToPath(new URL('../lib/collaboration.js', import.meta.url)), path.join(capabilityPackage, 'collaboration.js'))
   const nativeManifest = await import(new URL('typert.host.js', pathToFileURL(require.resolve('@deepseek-ai/dsh-api-session-controller'))))
   const createDescriptor = nativeManifest.TYPERT.invocations.find(item => item.namespace === 'session' && item.method === 'create')
@@ -348,31 +348,31 @@ try {
     for (const { manifest, owned } of fixtures) {
       const manifestFile = path.join(owned, 'package.json'), parent = pathToFileURL(manifestFile).href
       const groupSpecifier = manifest.name + '/group-assistants'
-      assert.equal(resolvePluginResource(groupSpecifier, parent), path.join(owned, manifest.name === 'dsh-wechat-remote' ? 'native/lib' : 'lib', 'group-assistants-component.js'))
+      assert.equal(resolvePluginResource(groupSpecifier, parent), path.join(owned, manifest.name === 'dsh-lxj-remote-installer' ? 'native/lib' : 'lib', 'group-assistants-component.js'))
       assert.equal(readPluginMeta(groupSpecifier, parent)?.title?.zh, '微信群协作助手')
       assert(resolvePluginResource(groupSpecifier + '/locale/zh.json', parent).startsWith(owned + path.sep))
-      const expectedCollaboration = path.join(owned, manifest.name === 'dsh-wechat-remote' ? 'native/lib/collaboration.js' : 'lib/collaboration.js')
+      const expectedCollaboration = path.join(owned, manifest.name === 'dsh-lxj-remote-installer' ? 'native/lib/collaboration.js' : 'lib/collaboration.js')
       assert.equal(resolvePluginResource(manifest.name + '/collaboration', parent), expectedCollaboration, 'capability component uses native owner self-reference rather than another same-name package')
       // Metadata may read an inactive package, but runtime authoring executes
       // from the selected Desktop installation. Its nested native/package.json
       // is a separate Node self-reference boundary; resolving the outer public
       // export from an inactive copy correctly points at a different runtime.
       const activeDesktop = fixtures.find(item => item.kind === 'installer').decoy
-      const activeCollaboration = manifest.name === 'dsh-wechat-remote'
+      const activeCollaboration = manifest.name === 'dsh-lxj-remote-installer'
         ? path.join(activeDesktop, 'native/lib/collaboration.js') : expectedCollaboration
       const adapterFile = path.join(path.dirname(activeCollaboration), 'assistant-presets/native-adapter.js')
       const relocated = await import(pathToFileURL(adapterFile).href)
-      if (manifest.name === '@harness-remote/dsh-wechat-remote') {
-        const unrelatedOuter = createRequire(pathToFileURL(adapterFile)).resolve('dsh-wechat-remote/collaboration')
+      if (manifest.name === 'dsh-lxj-remote') {
+        const unrelatedOuter = createRequire(pathToFileURL(adapterFile)).resolve('dsh-lxj-remote-installer/collaboration')
         assert.equal(unrelatedOuter, path.join(activeDesktop, 'native/lib/collaboration.js'),
           'standalone core can resolve a same-name Desktop package nearby, but it belongs to another installation')
         assert.notEqual(fs.realpathSync(unrelatedOuter), fs.realpathSync(expectedCollaboration))
       } else {
-        assert.equal(fs.realpathSync(createRequire(pathToFileURL(adapterFile)).resolve('dsh-wechat-remote/collaboration')),
+        assert.equal(fs.realpathSync(createRequire(pathToFileURL(adapterFile)).resolve('dsh-lxj-remote-installer/collaboration')),
           fs.realpathSync(activeCollaboration), 'the active nested Desktop runtime resolves its public export to the exact executing component')
         const staleAdapterFile = path.join(owned, 'native/lib/assistant-presets/native-adapter.js')
         const stale = await import(pathToFileURL(staleAdapterFile).href)
-        assert.notEqual(stale.nativeCollaborationModule(), 'dsh-wechat-remote/collaboration',
+        assert.notEqual(stale.nativeCollaborationModule(), 'dsh-lxj-remote-installer/collaboration',
           'an unselected old Desktop copy must not claim the active installation public component')
       }
       assert.equal(relocated.nativeCollaborationModule(), manifest.name + '/collaboration', 'the shipped authoring module chooses its actual core or Desktop outer package, not a hardcoded research package')

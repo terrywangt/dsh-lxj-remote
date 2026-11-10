@@ -9,7 +9,11 @@ import { TYPERT } from './lib/typert.host.js'
 export const name = 'gate'
 export const inject = [...gateInject, 'typert']
 
-export function apply(ctx) {
+// Arrow function on purpose: Cordis treats a plain `function apply` as a
+// class-style constructor, which breaks the host's shutdown/cleanup wiring.
+// Upstream v1.7.16 shipped the `function` form here and its own verify.mjs
+// flagged it; this fork keeps the verified form.
+export const apply = (ctx) => {
   ctx.typert.register(TYPERT)
   return mountGate(ctx)
 }

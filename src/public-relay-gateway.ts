@@ -49,6 +49,8 @@ export interface PublicRelayGatewayOptions {
   readonly onDiagnostic?: (level: 'info' | 'warn', message: string) => void
   /** Explicit test/self-host allowlist; product builds use the pinned OSS origin. */
   readonly trustedObjectOrigins?: readonly string[]
+  /** Cross-process relay transport lease, owned by the host gate. */
+  readonly lease?: { readonly enabled: boolean; readonly directory?: string }
 }
 
 export class PublicRelayGateway {
@@ -97,6 +99,7 @@ export class PublicRelayGateway {
       onClientDisconnect: clientId => this.disconnect(clientId),
       onClientError: clientId => this.disconnect(clientId),
       onTransportDisconnect: () => this.disconnectAll(),
+      ...(options.lease ? { lease: options.lease } : {}),
     }
     this.agent = new PublicRelayAgent(config, agentOptions)
     this.objectClient = new PublicObjectClient(

@@ -23,10 +23,10 @@ fs.writeFileSync(expectedPayload, execFileSync('tar', ['-xOf', installer, 'packa
 const expectedFiles = ['lib/update-policy.js', 'lib/update-download.js', 'lib/update-service.js', 'lib/update-worker.js'].map(file => [file,
   createHash('sha256').update(execFileSync('tar', ['-xOf', expectedPayload, 'package/' + file], { maxBuffer: 1024 * 1024 })).digest('hex')])
 const assertCandidateBytes = () => {
-  for (const [file, hash] of expectedFiles) assert.equal(createHash('sha256').update(fs.readFileSync(path.join(profile, 'node_modules/@harness-remote/dsh-wechat-remote', file))).digest('hex'), hash, 'installed bytes must match this candidate, not a same-version npm cache')
+  for (const [file, hash] of expectedFiles) assert.equal(createHash('sha256').update(fs.readFileSync(path.join(profile, 'node_modules/dsh-lxj-remote', file))).digest('hex'), hash, 'installed bytes must match this candidate, not a same-version npm cache')
 }
 const json = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null, 2), { mode: 0o600 })
-json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
+json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
 const nodeDir = path.dirname(process.execPath)
 const npx = [path.join(nodeDir, 'node_modules/npm/bin/npx-cli.js'),
   path.join(nodeDir, '../lib/node_modules/npm/bin/npx-cli.js'),
@@ -53,7 +53,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const report = { root, platform: process.platform, node: process.version, dsh: '0.1.5-rc.1', checks: [], ok: false }
 const children = []
 const step = name => { report.checks.push(name); console.log('PASS ' + name) }
-const version = () => JSON.parse(fs.readFileSync(path.join(profile, 'node_modules/@harness-remote/dsh-wechat-remote/package.json'))).version
+const version = () => JSON.parse(fs.readFileSync(path.join(profile, 'node_modules/dsh-lxj-remote/package.json'))).version
 function startNpx(args, name) {
   const log = fs.openSync(path.join(root, name + '.log'), 'a', 0o600)
   const child = spawn(process.execPath, [npx, '-y', ...args], { cwd: root, env, windowsHide: true, stdio: ['ignore', log, log] })
@@ -63,7 +63,7 @@ function startNpx(args, name) {
 async function runInstaller(name, args = []) {
   // Explicit package/bin avoids npm treating an absolute .tgz path with spaces
   // as a shell executable. Published users simply use the registry package name.
-  const child = startNpx(['--package=' + installer, 'dsh-wechat-remote', ...args], name)
+  const child = startNpx(['--package=' + installer, 'dsh-lxj-remote-installer', ...args], name)
   let timer
   try {
     const code = await Promise.race([
@@ -139,7 +139,7 @@ try {
   assert.equal(hosts.length, 1, 'Exactly one isolated npx DSH process must exist')
   const actualHost = hosts[0]
   assert(actualHost.CommandLine.includes(cache), 'npx must use its isolated cache, never an available global installation')
-  assert(!fs.existsSync(path.join(profile, 'node_modules/@harness-remote/dsh-wechat-remote/package.json')))
+  assert(!fs.existsSync(path.join(profile, 'node_modules/dsh-lxj-remote/package.json')))
   step('actual npx DSH starts with no global DSH on child PATH and an empty home')
   const beforePatch = fs.readFileSync(path.join(profile, 'cordis.patch.yml'), 'utf8')
   await runInstaller('installer-first')
@@ -174,7 +174,7 @@ try {
     assert.equal(process.arch, 'x64', 'Unmodified stable WebUI updater still restricts automatic restart to x64')
     const release = { version, channel: 'preview', dsh: ['0.1.5-rc.1'],
       platforms: [{ win32: 'windows', darwin: 'macos', linux: 'linux' }[process.platform]], architectures: ['x64'],
-      asset: { url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/harness-remote-dsh-wechat-remote-${version}.tgz`,
+      asset: { url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/dsh-lxj-remote-${version}.tgz`,
         sha256: '15f7a085bca98068d25c7fe2a1a139d69dbc2a56c090644f938131a28777d97b', bytes: 9547344 } }
     json(catalogFile, { schemaVersion: 1, revision: 'isolated-npx-update', issuedAt: Date.now() - 1000,
       expiresAt: Date.now() + 3600000, releases: [release], blocked: [], retiredDsh: [] })

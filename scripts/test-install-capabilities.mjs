@@ -19,7 +19,7 @@ for (const version of ['0.1.2-rc.1', '0.1.5-rc.1', '0.1.6-rc.1', '0.1.7-rc.1']) 
   assert.throws(() => assertNativeUpdateCapabilities({ get() { throw Error('must not access services') }, root: context }), { code: 'NATIVE_MANUAL_UPDATE_REQUIRED' })
   const now = Date.now()
   const release = { version: '1.7.3', channel: 'stable', dsh: [version], platforms: ['windows'], architectures: ['x64'],
-    asset: { url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.3/plugin.tgz', bytes: 100, sha256: 'a'.repeat(64) } }
+    asset: { url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.3/plugin.tgz', bytes: 100, sha256: 'a'.repeat(64) } }
   const catalog = { schemaVersion: 1, revision: 'future-target-fixture', issuedAt: now - 1000, expiresAt: now + 60000,
     releases: [release], blocked: [], retiredDsh: [] }
   const advice = assessUpdate(catalog, { agentKind: 'dsh', agentVersion: version, pluginVersion: '1.7.2', platform: 'windows', arch: 'x64' }, now)

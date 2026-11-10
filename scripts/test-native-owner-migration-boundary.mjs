@@ -44,7 +44,7 @@ if (archive && !process.env.HARNESS_OWNER_TEST_STAGE) {
   const require = createRequire(path.join(process.env.HARNESS_DSH_ROOT, 'package.json'))
   const { PluginManager } = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-plugin-manager')).href)
   const { composeEntries } = await import(pathToFileURL(require.resolve('@deepseek-ai/dsh-app-boot')).href)
-  const outer = 'dsh-wechat-remote', core = '@harness-remote/dsh-wechat-remote'
+  const outer = 'dsh-lxj-remote-installer', core = 'dsh-lxj-remote'
   const dir = path.join(stage, 'profile'), installAnchor = path.join(stage, 'installation/package.json')
   fs.mkdirSync(dir); fs.mkdirSync(path.dirname(installAnchor)); fs.writeFileSync(installAnchor, '{"dependencies":{}}\n')
   const profileFile = path.join(dir, 'package.json')

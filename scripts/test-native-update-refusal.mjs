@@ -8,7 +8,7 @@ import { NativeUpdateService, nativeReleaseFixture, mockArtifactFetch } from './
 
 function fixture(t) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'wechat-native-refusal-'))
-  const state = { version: '1.7.14-rc.68', name: 'dsh-wechat-remote', calls: 0, response: { application: 'failed', error: { code: 'already-installed' } } }
+  const state = { version: '1.7.14-rc.68', name: 'dsh-lxj-remote-installer', calls: 0, response: { application: 'failed', error: { code: 'already-installed' } } }
   const artifacts = nativeReleaseFixture()
   const release = { advice: { revision: 'test', component: 'plugin', targetVersion: '1.8.0' }, channel: 'stable', release: artifacts.release }
   const downloads = mockArtifactFetch(t, artifacts)
@@ -66,7 +66,7 @@ test('new provider, new target, and new installation identity invalidate/refine 
       }
       if (change === 'source') f.release.release.npmInstaller.sha256 = 'c'.repeat(64)
       if (change === 'owner') {
-        f.state.name = '@harness-remote/dsh-wechat-remote'
+        f.state.name = 'dsh-lxj-remote'
       }
       const check = await f.service.check()
       assert.equal(check.canInstall, true)

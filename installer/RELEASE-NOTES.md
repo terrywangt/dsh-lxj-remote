@@ -8,7 +8,7 @@
 
 已有用户优先使用插件内“检查更新”，无需卸载或重新配对。从旧版升级后如连接未恢复或提示待生效，请等待任务结束，完整退出并重新打开对应 DSH。Web 需重启实际服务，仅刷新网页不等于重启。
 
-新安装可在 DSH 插件管理器填写 `dsh-wechat-remote@1.7.15`，或选择完整安装包 `dsh-wechat-remote-1.7.15.tgz`。若安装环境提示新版本发布等待期，请按其提示处理。
+新安装可在 DSH 插件管理器填写 `dsh-lxj-remote-installer@1.7.15`，或选择完整安装包 `dsh-lxj-remote-installer-1.7.15.tgz`。若安装环境提示新版本发布等待期，请按其提示处理。
 
 # v1.7.15-rc.8
 
@@ -67,7 +67,7 @@
 - 改善历史消息、文件打开、连接稳定性及不同 DSH 版本的兼容性。
 - 改善插件一键更新、失败恢复和生效提示；Web 与 Desktop 分别更新，保留已有配对和会话。
 
-已有用户优先使用插件内“检查更新”。若 Web 旧版提示回到原生插件管理页，请先结束任务、正常停止 Web，再运行 `npx -y dsh-wechat-remote@latest`（Windows 可用 `npx.cmd`），无需卸载或重新配对。更新后仅在提示需要时正常重启当前 DSH。
+已有用户优先使用插件内“检查更新”。若 Web 旧版提示回到原生插件管理页，请先结束任务、正常停止 Web，再运行 `npx -y dsh-lxj-remote-installer@latest`（Windows 可用 `npx.cmd`），无需卸载或重新配对。更新后仅在提示需要时正常重启当前 DSH。
 
 # v1.7.13
 
@@ -76,7 +76,7 @@
 - 修复 Desktop 在联动更新结束后仍显示处理中，以及联动更新目标提示不清晰的问题。
 - 改善本地安装包的联动更新处理；更新另一端仍需确认，不会自动启用已关闭的插件。
 
-可使用微信连接页的更新入口，或执行 `npx -y dsh-wechat-remote@latest`；Windows 可使用 `npx.cmd`。Desktop 如提示待生效，请在任务结束后完全退出并重新打开，无需重新配对。
+可使用微信连接页的更新入口，或执行 `npx -y dsh-lxj-remote-installer@latest`；Windows 可使用 `npx.cmd`。Desktop 如提示待生效，请在任务结束后完全退出并重新打开，无需重新配对。
 
 # v1.7.13-rc.2（预览测试）
 
@@ -100,7 +100,7 @@
 - 减少仅浏览历史时误显示的会话占用错误；真实发送或修改失败仍会提示。同一会话仍不能由两端同时操作。
 - 改善 Web 更新包在慢网环境下的下载处理，保留完整性校验。
 
-Desktop 更新后如提示待生效，请在任务结束时完全退出并重新打开，无需重新配对。Web 用户可使用原有一键更新，失败时执行 `npx -y dsh-wechat-remote@latest`；Windows 可使用 `npx.cmd`。
+Desktop 更新后如提示待生效，请在任务结束时完全退出并重新打开，无需重新配对。Web 用户可使用原有一键更新，失败时执行 `npx -y dsh-lxj-remote-installer@latest`；Windows 可使用 `npx.cmd`。
 
 现有小程序的模型菜单可能未及时反映电脑上的切换；发送前请重新选择所需模型，并确认电脑已同步该选择，避免选择后立即发送。
 
@@ -129,7 +129,7 @@ Desktop 更新后如提示待生效，请在任务结束时完全退出并重新
 - 改善故障状态下的重新安装与失败恢复，保留原配对、会话和 DSH 版本。
 - 继续兼容已验证的旧版 DSH 安装方式。
 
-升级 DSH 后如果旧插件无法使用，请先结束正在执行的任务，再执行 `npx -y dsh-wechat-remote@latest`；Windows 可使用 `npx.cmd -y dsh-wechat-remote@latest`。安装完成后刷新原 WebUI 页面，无需重新配对。
+升级 DSH 后如果旧插件无法使用，请先结束正在执行的任务，再执行 `npx -y dsh-lxj-remote-installer@latest`；Windows 可使用 `npx.cmd -y dsh-lxj-remote-installer@latest`。安装完成后刷新原 WebUI 页面，无需重新配对。
 
 # v1.7.9
 
@@ -138,7 +138,7 @@ Desktop 更新后如提示待生效，请在任务结束时完全退出并重新
 - WebUI 一键更新支持在 GitHub 下载发生网络故障时使用已核验的 npm 备用来源；完善下载超时与修复安装处理。
 - 保留原有配对、会话及 DSH 版本。
 
-旧插件若因 GitHub 下载失败而无法更新，结束任务后执行 `npx -y dsh-wechat-remote@latest`；Windows 使用 `npx.cmd -y dsh-wechat-remote@latest`。升级后可使用新版的一键更新能力。
+旧插件若因 GitHub 下载失败而无法更新，结束任务后执行 `npx -y dsh-lxj-remote-installer@latest`；Windows 使用 `npx.cmd -y dsh-lxj-remote-installer@latest`。升级后可使用新版的一键更新能力。
 
 # v1.7.8
 
@@ -147,7 +147,7 @@ Desktop 更新后如提示待生效，请在任务结束时完全退出并重新
 - 改善旧版安装记录的兼容与失败恢复，保留原有会话、配对及其他插件配置。
 - 修复部分启动方式下单轮用量缺失，完善配套小程序的会话归档导出及 20 MB 超限提示。
 
-旧插件若无法在 WebUI 一键更新，结束任务后执行 `npx -y dsh-wechat-remote@latest`；Windows 可使用 `npx.cmd -y dsh-wechat-remote@latest`。疑似同版本文件损坏时可附加 `--repair`。升级不需要重新配对，也不会升级 DSH 本体。
+旧插件若无法在 WebUI 一键更新，结束任务后执行 `npx -y dsh-lxj-remote-installer@latest`；Windows 可使用 `npx.cmd -y dsh-lxj-remote-installer@latest`。疑似同版本文件损坏时可附加 `--repair`。升级不需要重新配对，也不会升级 DSH 本体。
 
 ## 备用：使用 DSH 官方命令安装 1.7.8
 
@@ -158,13 +158,13 @@ Desktop 更新后如提示待生效，请在任务结束时完全退出并重新
 全局安装 DSH 的用户：
 
 ```sh
-dsh plugin --profile web add https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.8/harness-remote-dsh-wechat-remote-1.7.8.tgz
+dsh plugin --profile web add https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.8/dsh-lxj-remote-1.7.8.tgz
 ```
 
 平时通过 NPX 启动 DSH 的用户：
 
 ```sh
-npx @deepseek-ai/dsh plugin --profile web add https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.8/harness-remote-dsh-wechat-remote-1.7.8.tgz
+npx @deepseek-ai/dsh plugin --profile web add https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.8/dsh-lxj-remote-1.7.8.tgz
 ```
 
 Windows PowerShell 若提示禁止运行脚本，将命令开头的 `dsh` / `npx` 分别改为 `dsh.cmd` / `npx.cmd` 即可，无需修改系统执行策略。平时固定了 DSH 版本的用户，这里也保留同一 DSH 版本；自定义 profile 或 `DSH_HOME` 时使用原值。

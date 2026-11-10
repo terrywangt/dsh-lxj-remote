@@ -39,7 +39,7 @@ const readArchive = arg => {
   return { file, bytes, manifest: JSON.parse(member(file, 'package/package.json')), sha256: sha(bytes) }
 }
 const old = readArchive(oldArg), first = readArchive(firstArg), next = nextArg ? readArchive(nextArg) : undefined
-const owner = 'dsh-wechat-remote', core = '@harness-remote/dsh-wechat-remote'
+const owner = 'dsh-lxj-remote-installer', core = 'dsh-lxj-remote'
 for (const artifact of [old, first, next].filter(Boolean)) assert.equal(artifact.manifest.name, owner)
 assert.equal(old.manifest.version, '1.7.13')
 assert.equal(old.sha256, '411bc900c9204aae1a0531761827ac0541af0c0ea763c83679890efe7d429c13', 'baseline must be original published 1.7.13')
@@ -57,8 +57,8 @@ const home = path.join(root, 'home'), profile = path.join(home, 'profiles/web'),
 const catalog = path.join(root, 'catalog.json'), fixtureId = randomUUID(), sessionId = 'npx-native-fixture'
 const json = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null, 2), { mode: 0o600 })
 fs.mkdirSync(home)
-json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
-const report = { fixture: root, platform: process.platform, dsh: dsh.version, command: 'npx -y dsh-wechat-remote@latest',
+json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
+const report = { fixture: root, platform: process.platform, dsh: dsh.version, command: 'npx -y dsh-lxj-remote-installer@latest',
   from: old.manifest.version, first: first.manifest.version, next: next?.manifest.version,
   firstSha256: first.sha256, nextSha256: next?.sha256,
   scope: 'actual NPX + official full Web host + native operator update; not GUI automation or user acceptance',
@@ -274,7 +274,7 @@ try {
   await call('seed', 'POST')
   const saved = preserved(), identity = binding()
   await stop()
-  await run(process.execPath, [npx, '-y', 'dsh-wechat-remote@latest'], 'npx-first-hop')
+  await run(process.execPath, [npx, '-y', 'dsh-lxj-remote-installer@latest'], 'npx-first-hop')
   const firstBoot = await ready(first.manifest.version, 120000)
   assert.notEqual(firstBoot.pid, before.pid)
   assertRuntime(firstBoot, first); assertOwner(firstBoot, first.manifest.version)

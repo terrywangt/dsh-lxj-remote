@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { spawn } from 'node:child_process'
 import { quiesceNativeHost } from '../lib/install-control.js'
 import { executeUpdate, releaseOwnedUpdateLock } from '../lib/update-worker.js'
-const files = [ ['package/package.json', JSON.stringify({ name: '@harness-remote/dsh-wechat-remote', version: '1.7.0' })], ['package/lib/index.js', ''], ['package/lib/client.js', ''] ]
+const files = [ ['package/package.json', JSON.stringify({ name: 'dsh-lxj-remote', version: '1.7.0' })], ['package/lib/index.js', ''], ['package/lib/client.js', ''] ]
 function pack(entries) {
   const chunks = []
   for (const [name, content, type = '0'] of entries) {

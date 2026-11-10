@@ -65,7 +65,7 @@ async function fixture(t) {
   const base = [{ id: 'persona', name: '@deepseek-ai/dsh-persona', config: { prefix: 'base', suffix: 'native suffix', complete: false, includeRuntimeContext: true } },
     { id: 'native-tool', name: '@deepseek-ai/dsh-tool-fs' },
     { id: 'nested', name: 'cordis:group', group: true, config: [
-      { id: 'inherited-collaboration', name: 'dsh-wechat-remote/collaboration' }, { id: 'other-tool', name: '@deepseek-ai/dsh-tool-skill' },
+      { id: 'inherited-collaboration', name: 'dsh-lxj-remote-installer/collaboration' }, { id: 'other-tool', name: '@deepseek-ai/dsh-tool-skill' },
     ] }]
   const definitions = new Map([['standard', { id: 'standard', name: 'standard', plugins: structuredClone(base), broken: 'group dependency absent in this base' }]])
   const assertNative = () => { checkCalls++; assert(nativeAllowed, 'definition-only restore must not query native services') }
@@ -76,7 +76,7 @@ async function fixture(t) {
     async register(value) { assertNative(); assert(!definitions.has(value.id)); definitions.set(value.id, value); calls.push(value); return async () => { definitions.delete(value.id) } },
     async acquireScope(id) { assertNative(); const key = {}; scopes.set(key, id); return { key, [Symbol.asyncDispose]: async () => { scopes.delete(key) } } },
   }
-  const scopeHasGroup = key => gate && definitions.get(scopes.get(key))?.plugins.some(row => row.name === 'dsh-wechat-remote/collaboration')
+  const scopeHasGroup = key => gate && definitions.get(scopes.get(key))?.plugins.some(row => row.name === 'dsh-lxj-remote-installer/collaboration')
   const access = { groupEnabled: () => gate && enabled, assertCurrent() { assert(gate && enabled, 'group rights denied') } }
   const host = { get(name) {
     if (name === 'agentPresets') return registry
@@ -87,7 +87,7 @@ async function fixture(t) {
     assert.fail(`unexpected service ${name}`)
   } }
   const create = () => { const library = new PrivateResourceLibrary(host, directory, { codec: { load: JSON.parse },
-    promptModule: 'dsh-wechat-remote/private-resource-prompt', collaborationModule: 'dsh-wechat-remote/collaboration' }); libraries.push(library); return library }
+    promptModule: 'dsh-lxj-remote-installer/private-resource-prompt', collaborationModule: 'dsh-lxj-remote-installer/collaboration' }); libraries.push(library); return library }
   t.after(async () => { for (const library of libraries) await library.close(); await rm(home, { recursive: true, force: true }) })
   return { home, directory, host, registry, definitions, calls, base, create, allowNative(value) { nativeAllowed = value },
     checkCalls: () => checkCalls, rights(value) { enabled = value }, gate(value) { gate = value } }

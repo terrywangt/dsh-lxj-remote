@@ -3,7 +3,7 @@
  * model and web providers are synthetic and network requests are forbidden.
  * Run after building: HARNESS_DSH_ASAR=<installed app.asar> node this-file.mjs
  * Optional HARNESS_HISTORY_CONTINUATION_PACKAGE=<actual installer .tgz>
- * loads the archive's unchanged dsh-wechat-remote/native layout instead.
+ * loads the archive's unchanged dsh-lxj-remote-installer/native layout instead.
  */
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
@@ -53,7 +53,7 @@ if (!stage) {
     }
     extract(tree.files.dsh, 'dsh')
     }
-    const product = path.join(work, packedProduct ? 'dsh/node_modules/dsh-wechat-remote' : 'dsh/node_modules/@harness-remote/dsh-wechat-remote')
+    const product = path.join(work, packedProduct ? 'dsh/node_modules/dsh-lxj-remote-installer' : 'dsh/node_modules/dsh-lxj-remote')
     fs.mkdirSync(product, { recursive: true })
     if (packedProduct) {
       // Extract actual release bytes without rewriting/bundling product code.
@@ -78,7 +78,7 @@ if (!stage) {
         if (type !== '5') fs.writeFileSync(target, tar.subarray(at + 512, at + 512 + size))
         at += 512 + Math.ceil(size / 512) * 512
       }
-      assert.equal(JSON.parse(fs.readFileSync(path.join(product, 'package.json'))).name, 'dsh-wechat-remote')
+      assert.equal(JSON.parse(fs.readFileSync(path.join(product, 'package.json'))).name, 'dsh-lxj-remote-installer')
     } else {
       fs.copyFileSync(path.join(project, 'package.json'), path.join(product, 'package.json'))
       fs.cpSync(path.join(project, 'lib'), path.join(product, 'lib'), { recursive: true })

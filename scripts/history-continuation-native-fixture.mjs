@@ -13,8 +13,8 @@ export async function verifyHistoryContinuation(work) {
   const anchor = path.join(work, 'dsh/node_modules/@deepseek-ai/dsh/package.json')
   const require = createRequire(anchor), load = name => import(pathToFileURL(require.resolve(name)).href)
   const packedProduct = process.env.HARNESS_HISTORY_CONTINUATION_PACKAGE
-  const productRoot = path.join(work, packedProduct ? 'dsh/node_modules/dsh-wechat-remote/native/lib/history-import'
-    : 'dsh/node_modules/@harness-remote/dsh-wechat-remote/lib/history-import')
+  const productRoot = path.join(work, packedProduct ? 'dsh/node_modules/dsh-lxj-remote-installer/native/lib/history-import'
+    : 'dsh/node_modules/dsh-lxj-remote/lib/history-import')
   const libraryRoot = path.resolve(productRoot, '../private-resources')
   const { parseResourcePreset, resourcePresetId } = await import(pathToFileURL(path.join(libraryRoot, 'contract.js')).href)
   const { nativeChatCompactionModule } = await import(pathToFileURL(path.join(libraryRoot, 'chat-composition.js')).href)
@@ -22,8 +22,8 @@ export async function verifyHistoryContinuation(work) {
   const chat = parseResourcePreset(fs.readFileSync(path.join(libraryRoot, 'bundled/chat-mode.json')))
   const definition = { id: resourcePresetId(chat) }
   const resolvedCompactionModule = nativeChatCompactionModule()
-  assert.equal(resolvedCompactionModule, packedProduct ? 'dsh-wechat-remote/resource-library/chat-compaction'
-    : '@harness-remote/dsh-wechat-remote/resource-library/chat-compaction')
+  assert.equal(resolvedCompactionModule, packedProduct ? 'dsh-lxj-remote-installer/resource-library/chat-compaction'
+    : 'dsh-lxj-remote/resource-library/chat-compaction')
   const { Context } = await load('@deepseek-ai/cordis')
   const { default: Loader } = await load('@deepseek-ai/cordis-plugin-loader')
   const { default: Group } = await load('@deepseek-ai/cordis-plugin-group')
@@ -481,7 +481,7 @@ export async function verifyHistoryContinuation(work) {
   }
   assert.equal(forbiddenNetworkCalls, 0)
   console.log(JSON.stringify({ passed: true, nativeVersion: JSON.parse(fs.readFileSync(anchor)).version,
-    productLayout: packedProduct ? 'packed-dsh-wechat-remote/native' : 'core-checkout-copy', resolvedCompactionModule,
+    productLayout: packedProduct ? 'packed-dsh-lxj-remote-installer/native' : 'core-checkout-copy', resolvedCompactionModule,
     ...(packedProduct ? { archiveSha256: createHash('sha256').update(fs.readFileSync(packedProduct)).digest('hex') } : {}),
     realNetworkRequests: 0, capturedWireRequests, realModelRequests: 0, liveProfilesTouched: false, checks }, null, 2))
 }

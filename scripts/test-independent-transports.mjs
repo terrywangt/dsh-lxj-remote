@@ -19,7 +19,7 @@ let WebLanServer = SecureLanServer
 if (process.env.HARNESS_LEGACY_PLUGIN_ROOT) {
   const legacy = process.env.HARNESS_LEGACY_PLUGIN_ROOT
   const manifest = JSON.parse(readFileSync(path.join(legacy, 'package.json'), 'utf8'))
-  assert.equal(manifest.name, '@harness-remote/dsh-wechat-remote')
+  assert.equal(manifest.name, 'dsh-lxj-remote')
   assert.equal(manifest.version, '1.7.10')
   WebLanServer = (await import(pathToFileURL(path.join(legacy, 'lib/secure-lan.js')).href)).SecureLanServer
 }

@@ -167,7 +167,7 @@ export function HarnessRemoteSettings({
           <div className={styles.pairingHead}>
             <div>
               <strong>添加到微信</strong>
-              <p>打开「Agent远程管理助手」小程序 → 添加节点，扫码配对。</p>
+              <p>打开「梁小鲸」小程序 → 我的 → 远程服务 → 设备管理 → 配对新电脑，扫码配对。</p>
               {qrState === 'ready' && qr ? <p className={styles.securityNote}>
                 {qr?.mode === 'public-relay' ? '远程内容端到端加密。' : '当前可通过同一局域网连接。'}
               </p> : null}
@@ -182,7 +182,7 @@ export function HarnessRemoteSettings({
           </div>
           {qrState !== 'idle' ? <div className={styles.qrArea}>
             {loadState === 'ready' && qrState === 'ready' && qr !== null ? (
-              <img className={styles.qr} src={qr.qrDataUrl} alt="Agent远程管理助手配对二维码" />
+              <img className={styles.qr} src={qr.qrDataUrl} alt="梁小鲸配对二维码" />
             ) : (
               <div className={styles.qrPlaceholder} aria-live="polite">
                 {loadState !== 'ready' ? '连接恢复后可查看二维码' : qrState === 'expired' ? '二维码已过期，请重新生成' : qrState === 'error' ? '生成失败' : '正在生成…'}

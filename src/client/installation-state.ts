@@ -15,7 +15,7 @@ interface Manager {
   listBundles(): Promise<{ ok: boolean; value?: Bundle[] }>
   listPlugins(): Promise<{ ok: boolean; value?: Plugin[] }>
 }
-const owners = ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']
+const owners = ['dsh-lxj-remote-installer', 'dsh-lxj-remote']
 const version = (value: unknown): string | undefined => typeof value === 'string' && /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(value) ? value : undefined
 
 /** Presentation only: never an installation/update admission check. */

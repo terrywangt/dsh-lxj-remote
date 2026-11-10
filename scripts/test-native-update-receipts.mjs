@@ -5,7 +5,7 @@ import os from 'node:os'
 import path from 'node:path'
 import { NativeUpdateService } from '../lib/native-update-service.js'
 
-const target = '1.8.0', previous = '1.7.14-rc.68', bundle = 'dsh-wechat-remote'
+const target = '1.8.0', previous = '1.7.14-rc.68', bundle = 'dsh-lxj-remote-installer'
 const id = 'a'.repeat(32)
 const pending = { phase: 'installing', jobId: id, targetVersion: target, previousVersion: previous, bundle, message: 'installing' }
 const tick = () => new Promise(resolve => setImmediate(resolve))
@@ -21,8 +21,8 @@ function fixture(t, initial = pending, runningVersion = target) {
   const options = { home, scope: 'desktop', runningVersion, manager: () => manager,
     sessions: () => { assert.fail('read-only recovery must not inspect running tasks') },
     release: async () => ({ channel: 'stable', advice: { revision: 'fixture', component: 'plugin', targetVersion: '1.9.0' },
-      release: { version: '1.9.0', asset: { url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.9.0/plugin.tgz', bytes: 1, sha256: 'a'.repeat(64) },
-        npmInstaller: { version: '1.9.0', url: 'https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-1.9.0.tgz', bytes: 1, sha256: 'b'.repeat(64) } } }) }
+      release: { version: '1.9.0', asset: { url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.9.0/plugin.tgz', bytes: 1, sha256: 'a'.repeat(64) },
+        npmInstaller: { version: '1.9.0', url: 'https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-1.9.0.tgz', bytes: 1, sha256: 'b'.repeat(64) } } }) }
   const service = new NativeUpdateService(options)
   t.after(() => { service.dispose(); fs.rmSync(home, { recursive: true, force: true }) })
   return { service, manager, options, journal, resolve, waits: () => waits, version: value => { version = value } }
@@ -253,7 +253,7 @@ test('failed banner reconciliation requires a single healthy original owner and 
     if (variant === 'unchanged') { row.version = previous; f.options.runningVersion = previous }
     if (variant === 'not-restarted') f.options.runningVersion = previous
     if (variant === 'downgrade') { row.version = '1.7.12'; f.options.runningVersion = row.version }
-    if (variant === 'other-owner') row.name = '@harness-remote/dsh-wechat-remote'
+    if (variant === 'other-owner') row.name = 'dsh-lxj-remote'
     if (variant === 'disabled') row.enabled = false
     if (variant === 'error') row.error = 'sibling failed'
     if (variant === 'read-only') row.readOnlyReason = 'shipped'
@@ -261,7 +261,7 @@ test('failed banner reconciliation requires a single healthy original owner and 
     f.manager.listBundles = async () => {
       if (variant === 'unavailable') throw Error('fixture unavailable')
       if (variant === 'missing') return []
-      if (variant === 'two-owners') return [row, { ...row, name: '@harness-remote/dsh-wechat-remote' }]
+      if (variant === 'two-owners') return [row, { ...row, name: 'dsh-lxj-remote' }]
       return [row]
     }
     const before = fs.readFileSync(f.journal)

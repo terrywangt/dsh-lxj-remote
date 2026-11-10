@@ -11,7 +11,7 @@ import { gzipSync } from 'node:zlib'
 import { createHash } from 'node:crypto'
 
 const setupUrl = new URL('../installer/bin/setup.mjs', import.meta.url)
-const version = '1.7.14-rc.24', core = '@harness-remote/dsh-wechat-remote', native = 'dsh-wechat-remote'
+const version = '1.7.14-rc.24', core = 'dsh-lxj-remote', native = 'dsh-lxj-remote-installer'
 function archive(entries) {
   const chunks = []
   for (const [name, content] of entries) {
@@ -91,7 +91,7 @@ async function fixture(t, { running = [], owner, installedVersion = '1.7.13', fa
   const metadata = { version, catalog: {
     schemaVersion: 1, revision: 'offline-admission', issuedAt: now - 1000, expiresAt: now + 60000, blocked: [], retiredDsh: [],
     releases: [{ version, channel: 'preview', dsh: [], platforms: [], architectures: [], asset: {
-      url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/plugin.tgz`, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'),
+      url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/plugin.tgz`, bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'),
     } }],
   } }
   fs.writeFileSync(path.join(assets, 'release.json'), JSON.stringify(metadata))

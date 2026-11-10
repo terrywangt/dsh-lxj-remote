@@ -23,7 +23,7 @@ const originalEnv={...process.env}
 for(const key of Object.keys(process.env))if(key.toLowerCase()==='path')delete process.env[key]
 process.env.PATH=process.platform==='win32'?path.join(process.env.SystemRoot||'C:\\Windows','System32'):'/usr/bin:/bin'
 process.env.DSH_HOME=home;process.env.DSH_AGENTS_HOME=path.join(home,'.agents');process.env.DSH_TELEMETRY_DISABLED='1'
-const dir=path.join(home,'profiles/web'),owner='@harness-remote/dsh-wechat-remote'
+const dir=path.join(home,'profiles/web'),owner='dsh-lxj-remote'
 const write=(file,value)=>{assert(file.startsWith(home+path.sep));fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,typeof value==='string'?value:JSON.stringify(value))}
 const pack=(name,version,manager=false)=>{
   const filename=name.replaceAll('@','').replaceAll('/','-')+'-'+version
@@ -69,7 +69,7 @@ try{
   assert.equal(failed.application,'failed');assert.equal(failed.changed,false)
   assert.equal(JSON.parse(fs.readFileSync(path.join(dir,'node_modules',owner,'package.json'),'utf8')).version,'1.0.0')
   const archive=fs.readFileSync(second)
-  const release={version:'2.0.0',asset:{url:'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v2.0.0/plugin.tgz',bytes:archive.length,sha256:createHash('sha256').update(archive).digest('hex')}}
+  const release={version:'2.0.0',asset:{url:'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v2.0.0/plugin.tgz',bytes:archive.length,sha256:createHash('sha256').update(archive).digest('hex')}}
   const priorFetch=globalThis.fetch
   globalThis.fetch=async url=>{assert.equal(String(url),release.asset.url,'synthetic fixture is offline');return new Response(archive)}
   const service=new NativeUpdateService({home,scope:'web',runningVersion:'1.0.0',manager:()=>ctx.get('pluginManager'),

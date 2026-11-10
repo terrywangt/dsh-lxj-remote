@@ -404,7 +404,7 @@ test('finishing an old poll cannot clear or duplicate a newly submitted job poll
   assert.equal(b.store.getSnapshot().status.jobId, 'c'.repeat(32))
 })
 
-const archive = process.env.HARNESS_RC68_UPDATE_ARCHIVE || path.join(repo, '../backups/native-scheduled-ui-20261014-rc50/harness-remote-dsh-wechat-remote-1.7.14-rc.68.tgz')
+const archive = process.env.HARNESS_RC68_UPDATE_ARCHIVE || path.join(repo, '../backups/native-scheduled-ui-20261014-rc50/dsh-lxj-remote-1.7.14-rc.68.tgz')
 test('actual retained RC68 service/handler plus NEW client: two tabs and lost start acknowledgement recover without repeated installation',
   { skip: !fs.existsSync(archive) && 'set HARNESS_RC68_UPDATE_ARCHIVE to the retained verified RC68 core package' }, async t => {
     const bytes = fs.readFileSync(archive)
@@ -434,14 +434,14 @@ test('actual retained RC68 service/handler plus NEW client: two tabs and lost st
       const home = fs.mkdtempSync(path.join(os.tmpdir(), 'dsh-client-recovery-regression-'))
       let version = OLD, runtime = OLD, installs = 0, handler
       const outcome = deferred(), services = []
-      const manager = { listBundles: async () => [{ name: 'dsh-wechat-remote', installed: true, enabled: true, version }],
-        installBundle: async () => { installs++; await outcome.promise; version = TARGET; return { application: 'restart-required', bundle: 'dsh-wechat-remote' } } }
+      const manager = { listBundles: async () => [{ name: 'dsh-lxj-remote-installer', installed: true, enabled: true, version }],
+        installBundle: async () => { installs++; await outcome.promise; version = TARGET; return { application: 'restart-required', bundle: 'dsh-lxj-remote-installer' } } }
       const service = runningVersion => {
         const instance = new NativeUpdateService({ home, scope: 'desktop', runningVersion, manager: () => manager,
           sessions: () => ({ list: async () => ({ items: [] }) }), release: async () => ({ ...offer(),
             advice: { ...offer().advice, revision: 'fixture', component: 'plugin', current: { pluginVersion: runtime } },
             release: { version: TARGET, channel: 'preview', dsh: [], platforms: [], architectures: [],
-              npmInstaller: { version: TARGET, url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${TARGET}.tgz`, sha256: 'a'.repeat(64), bytes: 100 } } }) })
+              npmInstaller: { version: TARGET, url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${TARGET}.tgz`, sha256: 'a'.repeat(64), bytes: 100 } } }) })
         services.push(instance); return instance
       }
       let host = service(OLD)

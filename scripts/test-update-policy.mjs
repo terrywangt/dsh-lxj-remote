@@ -62,7 +62,7 @@ test('missing architecture does not suppress updates or invent evidence', () => 
 })
 test('malformed semver and nested release asset paths rejected', () => {
   for (const version of ['1.2.3-01', '1.2.3+a..b', '1.2.3+', '1'.repeat(81) + '.2.3']) assert.throws(() => compareVersions(version, '1.2.3'))
-  assert(!trustedReleaseAsset({ url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.0/nested/plugin.tgz', sha256: 'a'.repeat(64), bytes: 100 }, '1.7.0'))
+  assert(!trustedReleaseAsset({ url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.0/nested/plugin.tgz', sha256: 'a'.repeat(64), bytes: 100 }, '1.7.0'))
 })
 test('retired DSH only when explicitly listed', () => assert.equal(assessUpdate(catalog, { ...current, agentVersion: '0.0.1' }, now).component, 'agent'))
 test('withdrawn targets excluded', () => assert.equal(assessUpdate({ ...catalog, blocked: [{ pluginVersion: '1.7.0', reason: 'Withdrawn' }, { pluginVersion: '1.8.0', reason: 'Withdrawn' }] }, current, now).targetVersion, undefined))
@@ -74,7 +74,7 @@ test('expired and future policy cannot authorize install', () => {
 test('missing or invalid catalog safe fallback', () => { for (const value of [null, {}, { ...catalog, schemaVersion: 2 }]) assert.equal(assessUpdate(value, current, now).severity, 'unknown') })
 test('other agents additive unknown', () => assert.equal(assessUpdate(catalog, { ...current, agentKind: 'claude' }, now).code, 'unknown-agent'))
 test('asset must be exact own GitHub release, HTTPS, bounded and hashed', () => {
-  const asset = { url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.0/plugin.tgz', sha256: 'a'.repeat(64), bytes: 2048 }
+  const asset = { url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.0/plugin.tgz', sha256: 'a'.repeat(64), bytes: 2048 }
   assert(trustedReleaseAsset(asset, '1.7.0'))
   for (const url of [asset.url.replace('https:', 'http:'), asset.url.replace('github.com', 'github.com.evil.test'), asset.url + '?redirect=evil', asset.url.replace('/v1.7.0/', '/v1.8.0/'), asset.url.replace('/plugin.tgz', '/../evil.tgz')]) assert(!trustedReleaseAsset({ ...asset, url }, '1.7.0'))
   assert(!trustedReleaseAsset({ ...asset, bytes: 1e10 }, '1.7.0'))

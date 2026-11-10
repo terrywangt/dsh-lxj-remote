@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { updateAction, resumedWebUrl } from '../lib/update-service.js'
 const release = { version: '1.7.0', channel: 'stable', dsh: ['0.1.2-rc.1'], platforms: ['windows'], architectures: ['x64'],
-  asset: { url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.0/plugin.tgz', bytes: 123, sha256: 'a'.repeat(64) } }
+  asset: { url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.0/plugin.tgz', bytes: 123, sha256: 'a'.repeat(64) } }
 const advice = { severity: 'info', targetVersion: '1.7.0', expiresAt: Date.now() + 60000 }
 const eligible = { eligible: true, reason: '' }, missing = { eligible: false, reason: 'Managed process' }
 assert.equal(updateAction(advice, release, eligible, false).mode, 'manual')

@@ -8,11 +8,19 @@ const relay = 'https://relay.example.test', primary = 'https://primary.example.t
 const { privateKey } = generateKeyPairSync('ed25519')
 const identity = { nodeId: 'node-abcdefghijklmnop', privateKeyPem: privateKey.export({ type: 'pkcs8', format: 'pem' }) }
 const objectId = 'object-abcdefghijklmnop'
-test('default routes are only Shanghai native and same-bucket CNAME; retired region is rejected before I/O', async () => {
-  assert.deepEqual(DEFAULT_TRUSTED_OBJECT_ORIGINS, [
-    'https://harness-remote-e2ee-cn-shanghai-7f4c9d2a.oss-cn-shanghai.aliyuncs.com',
-    'https://objects-sh.xyxfood.xyz',
-  ])
+test('fork trust list is the self-hosted relay origin only; upstream bucket is rejected before I/O', async () => {
+  assert.deepEqual(DEFAULT_TRUSTED_OBJECT_ORIGINS, ['https://h-wxrelay.1day.wang'])
+  for (const method of ['GET', 'PUT']) {
+    let calls = 0
+    const client = new PublicObjectClient(relay, identity, async () => {
+      calls++
+      return Response.json({ objectId, purpose: 'attachment', expectedBytes: 17, expiresAt: Date.now() + 60000,
+        [method === 'GET' ? 'download' : 'upload']: { expiresIn: 300,
+          url: 'https://harness-remote-e2ee-cn-shanghai-7f4c9d2a.oss-cn-shanghai.aliyuncs.com/object' } })
+    })
+    await assert.rejects(method === 'GET' ? client.download(objectId) : client.upload('attachment', Buffer.alloc(17)), /not trusted/)
+    assert.equal(calls, 1, 'only control request; no request to the upstream bucket')
+  }
   for (const method of ['GET', 'PUT']) {
     let calls = 0
     const client = new PublicObjectClient(relay, identity, async () => {

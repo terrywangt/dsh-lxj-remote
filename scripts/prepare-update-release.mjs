@@ -23,7 +23,7 @@ const plugin = fs.readFileSync(pluginPath), outer = fs.readFileSync(installerPat
 auditArchive(plugin, release)
 release.npmInstaller = {
   version: installer.version,
-  url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${installer.version}.tgz`,
+  url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${installer.version}.tgz`,
   bytes: outer.length, sha256: createHash('sha256').update(outer).digest('hex'),
 }
 validateCatalog(catalog)

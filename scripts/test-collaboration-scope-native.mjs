@@ -47,7 +47,7 @@ if (!childStage) {
       }
     }
     materialize(tree.files.dsh, 'dsh')
-    const productRoot = path.join(work, 'dsh/node_modules/@harness-remote/dsh-wechat-remote')
+    const productRoot = path.join(work, 'dsh/node_modules/dsh-lxj-remote')
     fs.mkdirSync(productRoot, { recursive: true })
     fs.copyFileSync(path.join(project, 'package.json'), path.join(productRoot, 'package.json'))
     fs.cpSync(path.join(project, 'lib'), path.join(productRoot, 'lib'), { recursive: true })
@@ -84,7 +84,7 @@ async function verify() {
   }
   const anchor = path.join(work, 'dsh/node_modules/@deepseek-ai/dsh/package.json')
   const require = createRequire(anchor), load = name => import(pathToFileURL(require.resolve(name)).href)
-  const productRoot = path.join(work, 'dsh/node_modules/@harness-remote/dsh-wechat-remote')
+  const productRoot = path.join(work, 'dsh/node_modules/dsh-lxj-remote')
   const product = file => import(pathToFileURL(path.join(productRoot, 'lib', file)).href)
   const { Context } = await load('@deepseek-ai/cordis')
   const { default: Loader, EntryTree } = await load('@deepseek-ai/cordis-plugin-loader')
@@ -177,7 +177,7 @@ async function verify() {
     const nativeRows = {}
     for (const id of ['standard', 'ptc', 'minimal', 'cordis']) {
       const source = fs.readFileSync(path.join(work, `dsh/node_modules/@deepseek-ai/dsh-web-app/presets/${id}.patch.yml`), 'utf8')
-      assert(!source.includes('dsh-wechat-remote') && !source.includes('human-workflow'), 'shipped native modes must not contain product collaboration')
+      assert(!source.includes('dsh-lxj-remote-installer') && !source.includes('human-workflow'), 'shipped native modes must not contain product collaboration')
       const definition = codec.load(source)[0].insert[0].config
       nativeRows[id] = definition.plugins.filter(row => ['persona', 'tool-fs', 'tool-skill', 'tool-presentation'].includes(row.id))
       assert(nativeRows[id].some(row => row.id === 'persona'))

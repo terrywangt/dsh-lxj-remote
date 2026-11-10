@@ -28,7 +28,7 @@ const image = { data: bytes, mediaType: 'image/png', width: 500, height: 400 }
 const sha = value => createHash('sha256').update(value).digest('hex')
 const md5 = value => createHash('md5').update(value).digest('base64')
 const publicAsset = () => ({ schema: 'human.card.asset.v1', assetRef: 'a'.repeat(32), sha256: sha(bytes), bytes: bytes.length, mediaType: 'image/png', width: 500, height: 400 })
-const ticket = (asset = publicAsset(), method = 'PUT') => ({ url: `https://objects-sh.xyxfood.xyz/human-tasks/${asset.assetRef}.bin?signature=fixture`, expiresIn: 300,
+const ticket = (asset = publicAsset(), method = 'PUT') => ({ url: `https://h-wxrelay.1day.wang/human-tasks/${asset.assetRef}.bin?signature=fixture`, expiresIn: 300,
   headers: method === 'GET' ? {} : { 'content-type': asset.mediaType, 'content-length': String(asset.bytes), 'content-md5': md5(bytes), 'x-oss-forbid-overwrite': 'true' } })
 function memory(initial) { let value = structuredClone(initial); return { load: async () => structuredClone(value), save: async next => { value = structuredClone(next) }, get value() { return structuredClone(value) } } }
 function defer() { let resolve; return { promise: new Promise(done => { resolve = done }), resolve: value => resolve(value) } }

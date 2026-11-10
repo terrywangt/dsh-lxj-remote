@@ -9,7 +9,7 @@ export function nativeChatMemoryModule(): string { return nativeChatModule('chat
 function nativeChatModule(component: string): string {
   const own = realpathSync(new URL(`./${component}.js`, import.meta.url))
   const resolve = createRequire(import.meta.url).resolve
-  for (const name of [`dsh-wechat-remote/resource-library/${component}`, `@harness-remote/dsh-wechat-remote/resource-library/${component}`]) {
+  for (const name of [`dsh-lxj-remote-installer/resource-library/${component}`, `dsh-lxj-remote/resource-library/${component}`]) {
     try { if (realpathSync(resolve(name)) === own) return name } catch { /* Try only our supported package layouts. */ }
   }
   throw resourceError('resource-host-unavailable', '当前插件尚未提供 Chat 运行组件，请更新插件。')

@@ -11,14 +11,14 @@ interface Editor {
   entries(): Entry[]
   edit(entry: Entry, change: (current: Record<string, unknown>, inherited: Record<string, unknown>) => Record<string, unknown>): Promise<void>
 }
-interface ToolRecord { schema: 1; owner: 'dsh-wechat-remote'; runtime: InstallRuntime; command: string; digest: string }
+interface ToolRecord { schema: 1; owner: 'dsh-lxj-remote-installer'; runtime: InstallRuntime; command: string; digest: string }
 const identity = (value: any): object | undefined => value?.[symbols.original] ?? value
 const read = (file: string) => JSON.parse(fs.readFileSync(file, 'utf8'))
 function ownedTool(command: unknown, root: string): boolean {
   if (typeof command !== 'string' || path.dirname(path.dirname(command)) !== root) return false
   try {
     const record = read(path.join(path.dirname(command), 'tool.json')) as ToolRecord
-    return record.schema === 1 && record.owner === 'dsh-wechat-remote' && record.command === command
+    return record.schema === 1 && record.owner === 'dsh-lxj-remote-installer' && record.command === command
       && /^[a-f0-9]{64}$/.test(record.digest)
       && path.basename(path.dirname(command)) === `pnpm-${record.runtime.version}-${record.digest.slice(0, 24)}`
   } catch { return false }
@@ -78,7 +78,7 @@ export async function persistentUpdateTool(home: string, owner = fileURLToPath(n
   const executable = path.join(target, process.platform === 'win32' ? 'node.exe' : 'node')
   const command = path.join(target, process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm')
   const runtime = { ...source, executable, cli: path.join(target, 'pnpm-package', path.relative(packageRoot, source.cli)) }
-  const record: ToolRecord = { schema: 1, owner: 'dsh-wechat-remote', runtime, command, digest: content }
+  const record: ToolRecord = { schema: 1, owner: 'dsh-lxj-remote-installer', runtime, command, digest: content }
   const inspect = async () => {
     if (fs.lstatSync(target).isSymbolicLink() || JSON.stringify(read(path.join(target, 'tool.json'))) !== JSON.stringify(record)) throw Error('已有安装工具记录不一致，未覆盖。')
     if (await hash(path.join(target, 'pnpm-package'), executable) !== content || await fs.promises.readFile(command, 'utf8') !== launcher) throw Error('已有安装工具校验失败，未覆盖。')

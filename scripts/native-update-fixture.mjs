@@ -31,7 +31,7 @@ export function tarArchive(files) {
   return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
 }
 
-export function coreArchive(version, name = '@harness-remote/dsh-wechat-remote') {
+export function coreArchive(version, name = 'dsh-lxj-remote') {
   return tarArchive([
     ['package/package.json', JSON.stringify({ name, version, dsh: { bundle: { patch: './cordis.patch.yml' } } })],
     ['package/lib/index.js', ''], ['package/lib/client.js', ''], ['package/cordis.patch.yml', '[]'],
@@ -40,8 +40,8 @@ export function coreArchive(version, name = '@harness-remote/dsh-wechat-remote')
 
 export function nativeReleaseFixture(version = '1.8.0', options = {}) {
   const core = options.core ?? coreArchive(version)
-  const asset = { url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/plugin.tgz`, ...integrity(core) }
-  const manifest = { name: 'dsh-wechat-remote', version, dsh: { bundle: { patch: './cordis.patch.yml' } }, ...options.manifest }
+  const asset = { url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/plugin.tgz`, ...integrity(core) }
+  const manifest = { name: 'dsh-lxj-remote-installer', version, dsh: { bundle: { patch: './cordis.patch.yml' } }, ...options.manifest }
   const metadata = options.metadata ?? { version, catalog: { releases: [{ version, asset }] } }
   const files = [
     ['package/package.json', JSON.stringify(manifest)],
@@ -50,7 +50,7 @@ export function nativeReleaseFixture(version = '1.8.0', options = {}) {
   ].filter(([name]) => name !== options.omit)
   const outer = tarArchive(files)
   const release = { version, asset, npmInstaller: { version,
-    url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${version}.tgz`, ...integrity(outer) } }
+    url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${version}.tgz`, ...integrity(outer) } }
   return { core, outer, release }
 }
 

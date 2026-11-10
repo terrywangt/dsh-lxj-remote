@@ -10,7 +10,7 @@ const compile = async name => (await build({ entryPoints: ['src/client/' + name]
 const compiled = await compile('installation-state.ts'), ui = await compile('InstallationResultPanel.tsx')
 const module = { exports: {} }; vm.runInNewContext(compiled, { module, exports: module.exports })
 const { readInstallationState, manualRestartInstruction } = module.exports
-const owners = ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']
+const owners = ['dsh-lxj-remote-installer', 'dsh-lxj-remote']
 const current = JSON.parse(fs.readFileSync('package.json', 'utf8')).version, old = '1.7.13'
 function fixture(scope, owner, running = current) {
   const calls = [], host = { pluginVersion: running, gate: { profileScope: scope } }

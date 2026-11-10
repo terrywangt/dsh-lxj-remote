@@ -1,6 +1,6 @@
 import { type Release, type UpdateAdvice } from './update-policy.js';
-declare const bundleName = "dsh-wechat-remote";
-declare const coreName = "@harness-remote/dsh-wechat-remote";
+declare const bundleName = "dsh-lxj-remote-installer";
+declare const coreName = "dsh-lxj-remote";
 type Owner = typeof bundleName | typeof coreName;
 type Phase = 'idle' | 'preparing' | 'installing' | 'restart-required' | 'complete' | 'failed' | 'unknown';
 interface NativeReceipt {

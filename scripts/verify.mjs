@@ -56,7 +56,7 @@ check(client.includes('wechatHost/describe'), 'lib/client.js 没有通过 DSH �
 check(!client.includes('/api/wechatHost.describe'), 'lib/client.js 残留错误的手写 Web API 地址')
 check(!client.includes('http://127.0.0.1:3093'), 'lib/client.js 不得盲试 Web 默认配对端口')
 check(client.includes('/wechat-remote-management'), 'lib/client.js 缺少宿主认证配对入口')
-for (const required of ['Agent远程管理助手', '添加到微信', '生成二维码', '局域网直连', '远程访问', '账号连接保护']) {
+for (const required of ['梁小鲸', '添加到微信', '生成二维码', '局域网直连', '远程访问', '账号连接保护']) {
   check(client.includes(required), `lib/client.js 用户配对界面缺少「${required}」`)
 }
 for (const privateDetail of ['relayOrigin', 'lastError', '本机配对门', 'xyxfood.xyz']) {

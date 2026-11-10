@@ -17,7 +17,7 @@ export interface NativeAssistantAdapterOptions {
     };
 }
 export declare const COLLABORATION_COMPONENT_ID = "harness-collaboration";
-declare const collaborationModules: readonly ["dsh-wechat-remote/collaboration", "@harness-remote/dsh-wechat-remote/collaboration"];
+declare const collaborationModules: readonly ["dsh-lxj-remote-installer/collaboration", "dsh-lxj-remote/collaboration"];
 /** The Desktop bundle contains this core under native/. Its public outer
  * self-reference must be used by separately installed preset packages; the CLI
  * core instead owns its scoped npm name. Never infer this from another profile. */

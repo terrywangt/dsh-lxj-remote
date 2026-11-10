@@ -26,7 +26,7 @@ function durableSnapshot(job) {
     if (!fs.existsSync(dir)) return;
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
       const file = path.join(dir, e.name);
-      if (path.relative(job.home, file).split(path.sep).includes("harness-remote") && (["installation-offers", ".storage-lock", "storage-layout.json", "storage-transaction.json", "gate-wechat-state.json"].includes(e.name) || /^\.storage-lock-pending-\d+-[a-f0-9]{32}$/.test(e.name))) continue;
+      if (path.relative(job.home, file).split(path.sep).includes("harness-remote") && (["installation-offers", ".storage-lock", "storage-layout.json", "storage-transaction.json", "gate-wechat-state.json", "relay-leases"].includes(e.name) || /^\.storage-lock-pending-\d+-[a-f0-9]{32}$/.test(e.name))) continue;
       if (e.isSymbolicLink()) result[path.relative(job.home, file)] = createHash("sha256").update(fs.readlinkSync(file)).digest("hex");
       else if (e.isDirectory()) walk(file);
       else if (e.isFile()) result[path.relative(job.home, file)] = hashFile(file);

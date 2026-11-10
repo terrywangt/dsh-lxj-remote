@@ -21,7 +21,7 @@ import { WorkspaceAnalyzer, WorkspaceTypertGenerator } from '@deepseek-ai/dsh-ty
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const manifest = JSON.parse(readFileSync(path.join(root, 'package.json'), 'utf8'))
 const temp = mkdtempSync(path.join(tmpdir(), 'dsh-wechat-typert-'))
-const packageRoot = path.join(temp, 'packages', 'dsh-wechat-remote')
+const packageRoot = path.join(temp, 'packages', 'dsh-lxj-remote-installer')
 const protocolRoot = path.join(temp, 'packages', 'dsh-typert-protocol')
 
 try {
@@ -301,7 +301,7 @@ try {
     files: [],
     references: [
       { path: './packages/dsh-typert-protocol/tsconfig.json' },
-      { path: './packages/dsh-wechat-remote/tsconfig.json' },
+      { path: './packages/dsh-lxj-remote-installer/tsconfig.json' },
     ],
   }, null, 2))
   symlinkSync(path.join(root, 'node_modules'), path.join(temp, 'node_modules'), 'junction')

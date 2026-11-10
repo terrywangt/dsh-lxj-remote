@@ -39,7 +39,7 @@ async function fixture(scope, owner, action) {
 }
 
 test('both standard profiles and package owners: fixed production catalog, stable-only, no disk changes', async () => {
-  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']) {
+  for (const scope of ['web', 'desktop']) for (const owner of ['dsh-lxj-remote-installer', 'dsh-lxj-remote']) {
     await fixture(scope, owner, async (home, peer) => {
       const before = await snapshot(home), urls = []
       const result = await readOtherEndpointInfo({ home, scope, signal: signal(), platform: 'linux', fetcher: async (url, init) => {
@@ -47,7 +47,7 @@ test('both standard profiles and package owners: fixed production catalog, stabl
       } })
       assert.deepEqual(result, { scope: peer, state: 'available', pluginState: 'installed', pluginVersion: '1.7.13',
         update: { state: 'available', targetVersion: '1.7.14' } })
-      assert.deepEqual(urls, ['https://relay.xyxfood.xyz/v1/update-policy'])
+      assert.deepEqual(urls, ['https://h-wxrelay.1day.wang/v1/update-policy'])
       assert.deepEqual(await snapshot(home), before)
       assert.doesNotMatch(JSON.stringify(result), /secret|sentinel|profiles|node_modules|rc\.99/)
     })
@@ -55,12 +55,12 @@ test('both standard profiles and package owners: fixed production catalog, stabl
 })
 
 test('missing, incomplete and ambiguous profiles do not become a false no-update or trigger network', async () => {
-  await fixture('desktop', 'dsh-wechat-remote', async home => {
+  await fixture('desktop', 'dsh-lxj-remote-installer', async home => {
     const fetcher = () => assert.fail('unknown ownership must not fetch')
     const read = () => readOtherEndpointInfo({ home, scope: 'desktop', signal: signal(), fetcher })
     await put(home, 'profiles/web/package.json', { dependencies: {} })
     assert.equal((await read()).pluginState, 'not-installed')
-    await put(home, 'profiles/web/package.json', { dependencies: { 'dsh-wechat-remote': '1', '@harness-remote/dsh-wechat-remote': '1' } })
+    await put(home, 'profiles/web/package.json', { dependencies: { 'dsh-lxj-remote-installer': '1', 'dsh-lxj-remote': '1' } })
     assert.equal((await read()).pluginState, 'unknown')
     await put(home, 'profiles/web/package.json', { dependencies: [] })
     assert.equal((await read()).state, 'unknown')
@@ -71,12 +71,12 @@ test('missing, incomplete and ambiguous profiles do not become a false no-update
 })
 
 test('DSH version is never inferred from current process, dependency spec or an unreferenced package', async () => {
-  await fixture('desktop', 'dsh-wechat-remote', async home => {
+  await fixture('desktop', 'dsh-lxj-remote-installer', async home => {
     const fetcher = async () => new Response(JSON.stringify(catalog()))
     const read = () => readOtherEndpointInfo({ home, scope: 'desktop', signal: signal(), fetcher })
     await put(home, 'profiles/web/node_modules/@deepseek-ai/dsh/package.json', { name: '@deepseek-ai/dsh', version: '0.2.0' })
     assert.equal((await read()).dshVersion, undefined)
-    await put(home, 'profiles/web/package.json', { dependencies: { 'dsh-wechat-remote': 'latest', '@deepseek-ai/dsh': 'latest' } })
+    await put(home, 'profiles/web/package.json', { dependencies: { 'dsh-lxj-remote-installer': 'latest', '@deepseek-ai/dsh': 'latest' } })
     assert.equal((await read()).dshVersion, '0.2.0')
     await put(home, 'profiles/web/node_modules/@deepseek-ai/dsh/package.json', [])
     const result = await read()
@@ -94,7 +94,7 @@ test('stable comparison ignores previews; stale, failed and uncertain restrictio
 })
 
 test('failed network preserves installed information; cancellation propagates without swallowing', async () => {
-  await fixture('desktop', 'dsh-wechat-remote', async home => {
+  await fixture('desktop', 'dsh-lxj-remote-installer', async home => {
     const result = await readOtherEndpointInfo({ home, scope: 'desktop', signal: signal(), fetcher: async () => { throw Error('offline') } })
     assert.equal(result.pluginVersion, '1.7.13'); assert.equal(result.update.state, 'unknown')
     const controller = new AbortController(); controller.abort()

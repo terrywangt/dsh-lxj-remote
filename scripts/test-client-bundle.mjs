@@ -142,7 +142,7 @@ exports.apply({
         return () => {}
       }
       if (spec.name !== 'settings.section') {
-        assert(['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote'].includes(spec.key))
+        assert(['dsh-lxj-remote-installer', 'dsh-lxj-remote'].includes(spec.key))
         nativeKeys.add(`${spec.name}:${spec.key}`)
         assert.equal(typeof component, 'function')
         if (spec.name === 'plugins.bundle.config') {

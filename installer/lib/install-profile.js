@@ -5,8 +5,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { createHash, randomBytes } from "node:crypto";
 import { spawn, execFile } from "node:child_process";
-var PLUGIN_PACKAGE = "@harness-remote/dsh-wechat-remote";
-var NATIVE_PLUGIN_PACKAGE = "dsh-wechat-remote";
+var PLUGIN_PACKAGE = "dsh-lxj-remote";
+var NATIVE_PLUGIN_PACKAGE = "dsh-lxj-remote-installer";
+var FOREIGN_PLUGIN_PACKAGES = ["@harness-remote/dsh-wechat-remote", "dsh-wechat-remote"];
 var ProfileOwnershipError = class extends Error {
   constructor(message) {
     super(message);
@@ -34,7 +35,11 @@ function webInstallOwner(profile) {
   }
   const referenced = (name) => Object.hasOwn(manifest.dependencies ?? {}, name) || bundles.includes(name);
   if (referenced(NATIVE_PLUGIN_PACKAGE) && referenced(PLUGIN_PACKAGE)) {
-    throw new ProfileOwnershipError("\u5F53\u524D DSH \u914D\u7F6E\u540C\u65F6\u767B\u8BB0\u4E86\u4E24\u79CD\u5FAE\u4FE1\u8FDE\u63A5\u63D2\u4EF6\u5B89\u88C5\u5305\uFF0C\u672A\u66FF\u6362\u63D2\u4EF6\u3002\u8BF7\u5148\u5728\u8BE5\u7AEF\u539F\u751F\u63D2\u4EF6\u7BA1\u7406\u9875\u6838\u5BF9\u5B89\u88C5\u6765\u6E90\uFF0C\u52FF\u91CD\u590D\u5B89\u88C5\u3002");
+    throw new ProfileOwnershipError("\u5F53\u524D DSH \u914D\u7F6E\u540C\u65F6\u767B\u8BB0\u4E86\u4E24\u79CD\u63D2\u4EF6\u5B89\u88C5\u5305\uFF0C\u672A\u66FF\u6362\u63D2\u4EF6\u3002\u8BF7\u5148\u5728\u8BE5\u7AEF\u539F\u751F\u63D2\u4EF6\u7BA1\u7406\u9875\u6838\u5BF9\u5B89\u88C5\u6765\u6E90\uFF0C\u52FF\u91CD\u590D\u5B89\u88C5\u3002");
+  }
+  const foreign = FOREIGN_PLUGIN_PACKAGES.filter(referenced);
+  if (foreign.length) {
+    throw new ProfileOwnershipError(`\u5F53\u524D DSH \u914D\u7F6E\u767B\u8BB0\u4E86\u4E0A\u6E38\u63D2\u4EF6\uFF08${foreign.join(" / ")}\uFF09\u3002\u672C\u63D2\u4EF6\u4E0E\u5B83\u5171\u7528\u540C\u4E00\u8282\u70B9\u8EAB\u4EFD\u6587\u4EF6\uFF0C\u540C\u65F6\u5B89\u88C5\u4F1A\u4E92\u8E22\u4E2D\u7EE7\u8FDE\u63A5\uFF1B\u8BF7\u5148\u5728\u8BE5\u7AEF\u63D2\u4EF6\u7BA1\u7406\u9875\u79FB\u9664\u4E0A\u6E38\u63D2\u4EF6\uFF0C\u518D\u5B89\u88C5\u672C\u63D2\u4EF6\u3002`);
   }
   return referenced(NATIVE_PLUGIN_PACKAGE) ? NATIVE_PLUGIN_PACKAGE : referenced(PLUGIN_PACKAGE) ? PLUGIN_PACKAGE : void 0;
 }
@@ -211,6 +216,7 @@ async function installProfile(job) {
   if (after.dsh?.profile?.bundles?.includes(packageName) === true !== expectedEnabled) throw new Error("DSH \u5B89\u88C5\u540E\u63D2\u4EF6\u542F\u7528\u72B6\u6001\u4E0E\u539F\u8BBE\u7F6E\u4E0D\u4E00\u81F4\u3002");
 }
 export {
+  FOREIGN_PLUGIN_PACKAGES,
   NATIVE_PLUGIN_PACKAGE,
   NativeInstallError,
   PLUGIN_PACKAGE,

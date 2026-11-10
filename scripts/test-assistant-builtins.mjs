@@ -55,7 +55,7 @@ test('built-in components register stable native presets after loader settles; p
     assert.match(item.plugins[0].config.prefix, /职业助手工作方法/)
     assert.equal(item.plugins[0].config.suffix, 'Retain suffix.')
     assert.deepEqual(item.plugins[1], h.base[1])
-    assert.deepEqual(item.plugins.at(-1), { id: 'harness-collaboration', name: '@harness-remote/dsh-wechat-remote/collaboration' })
+    assert.deepEqual(item.plugins.at(-1), { id: 'harness-collaboration', name: 'dsh-lxj-remote/collaboration' })
   }
   await h.close(); assert.equal(h.registered.size, 0)
   assert((await Promise.all(components.map(component => component.status()))).every(item => item.state === 'unknown'))

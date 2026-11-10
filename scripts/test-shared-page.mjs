@@ -90,7 +90,7 @@ test('actual client and service follow live manager capability; old Desktop with
     const service = new NativeUpdateService({ home, scope: profileScope, runningVersion: current, manager: () => manager,
       sessions: () => ({ list: async () => assert.fail('viewing must not query tasks') }),
       release: async () => ({ channel: 'stable', advice: { component: 'plugin', targetVersion: target, revision: 'fixture', current: { pluginVersion: current } },
-        release: { version: target, npmInstaller: { version: target, url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${target}.tgz`, bytes: 1, sha256: 'a'.repeat(64) } } }) })
+        release: { version: target, npmInstaller: { version: target, url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${target}.tgz`, bytes: 1, sha256: 'a'.repeat(64) } } }) })
     const snapshot = () => ({ ...runtime, profileScope, ...(supportsNativeUpdates(manager, profileScope) ? { updates: 'native-v1' } : {}) })
     const store = new RemotePageStore(async () => ({ computerName: 'fixture', agentName: 'fixture', gate: snapshot() }), async endpoint => {
       calls.push(endpoint)
@@ -109,7 +109,7 @@ test('actual client and service follow live manager capability; old Desktop with
         assert.equal(store.nativeUpdates.getSnapshot().check.canInstall, false)
         assert.match(store.nativeUpdates.getSnapshot().check.reason, /先将 DSH 更新/)
       }
-      manager = { listBundles: async () => { inventoryReads++; return [{ name: 'dsh-wechat-remote', version: current, installed: true, enabled: true }] },
+      manager = { listBundles: async () => { inventoryReads++; return [{ name: 'dsh-lxj-remote-installer', version: current, installed: true, enabled: true }] },
         installBundle: async () => assert.fail('capability appearance cannot start installation') }
       const before = calls.length
       await store.refresh(); await store.refresh()
@@ -156,7 +156,7 @@ test('host replacement disposes the old in-flight native check without transferr
   } finally { off?.(); nextOff?.(); store.dispose() }
 })
 test('native navigation resolves enabled actual wrapper or core, never guessing by desktop/web', async () => {
-  for (const name of ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote']) {
+  for (const name of ['dsh-lxj-remote-installer', 'dsh-lxj-remote']) {
     const opened = []
     const services = { pluginNavigation: { openBundle: name => opened.push(name) }, 'remote.pluginManager': { listBundles: async () => ({ ok: true, value: [{ name, enabled: true }] }) } }
     assert.equal(await openPluginPage(key => services[key]), true)
@@ -171,7 +171,7 @@ test('navigation works through real Cordis sibling services without undeclared R
       new Service(owner, 'remote')
       class Manager extends Service {
         constructor() { super(owner, 'remote.pluginManager') }
-        async listBundles() { return { ok: true, value: [{ name: 'dsh-wechat-remote', enabled: true }] } }
+        async listBundles() { return { ok: true, value: [{ name: 'dsh-lxj-remote-installer', enabled: true }] } }
       }
       new Manager()
       owner.provide('pluginNavigation', { openBundle: name => opened.push(name) })
@@ -181,11 +181,11 @@ test('navigation works through real Cordis sibling services without undeclared R
       result = openPluginPage(name => owner.get(name))
     } })
     assert.equal(await result, true)
-    assert.deepEqual(opened, ['dsh-wechat-remote'])
+    assert.deepEqual(opened, ['dsh-lxj-remote-installer'])
   } finally { await ctx.fiber.dispose() }
 })
 test('old/disabled/ambiguous/unavailable navigation gracefully retains settings path', async () => {
-  for (const bundles of [[], [{ name: 'dsh-wechat-remote', enabled: false }], [{ name: 'dsh-wechat-remote', enabled: true }, { name: '@harness-remote/dsh-wechat-remote', enabled: true }]]) {
+  for (const bundles of [[], [{ name: 'dsh-lxj-remote-installer', enabled: false }], [{ name: 'dsh-lxj-remote-installer', enabled: true }, { name: 'dsh-lxj-remote', enabled: true }]]) {
     const services = { pluginNavigation: { openBundle: () => assert.fail('wrong navigation') }, 'remote.pluginManager': { listBundles: async () => ({ ok: true, value: bundles }) } }
     assert.equal(await openPluginPage(key => services[key]), false)
   }

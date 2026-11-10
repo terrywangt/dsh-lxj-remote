@@ -32,7 +32,7 @@ export function durableSnapshot(job: UpdateJob): Record<string, string> {
       // bookkeeping, not user data. QR tickets may expire while upgrading.
       // Their durable binding is checked separately below.
       if (path.relative(job.home, file).split(path.sep).includes('harness-remote')
-          && (['installation-offers', '.storage-lock', 'storage-layout.json', 'storage-transaction.json', 'gate-wechat-state.json'].includes(e.name)
+          && (['installation-offers', '.storage-lock', 'storage-layout.json', 'storage-transaction.json', 'gate-wechat-state.json', 'relay-leases'].includes(e.name)
             || /^\.storage-lock-pending-\d+-[a-f0-9]{32}$/.test(e.name))) continue
       if (e.isSymbolicLink()) result[path.relative(job.home, file)] = createHash('sha256').update(fs.readlinkSync(file)).digest('hex')
       else if (e.isDirectory()) walk(file)

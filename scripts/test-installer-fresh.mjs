@@ -21,13 +21,13 @@ try {
     await new Promise(resolve => setTimeout(resolve, 200))
   }
   assert(ready && child.exitCode === null)
-  assert(!fs.existsSync(path.join(home, 'profiles/web/node_modules/@harness-remote/dsh-wechat-remote/package.json')))
+  assert(!fs.existsSync(path.join(home, 'profiles/web/node_modules/dsh-lxj-remote/package.json')))
   const setup = pathToFileURL(path.resolve('installer/bin/setup.mjs')).href
   const installer = spawn(process.execPath, ['--input-type=module', '-e', `import(${JSON.stringify(setup)}).then(({install})=>install({open:false,cli:${JSON.stringify(cli)}})).catch(e=>{console.error(e);process.exitCode=1})`], {
     cwd: root, env, windowsHide: true, stdio: 'inherit' })
   const code = await new Promise((resolve, reject) => { installer.once('error', reject); installer.once('exit', resolve) })
   assert.equal(code, 0)
-  const installed = JSON.parse(fs.readFileSync(path.join(home, 'profiles/web/node_modules/@harness-remote/dsh-wechat-remote/package.json')))
+  const installed = JSON.parse(fs.readFileSync(path.join(home, 'profiles/web/node_modules/dsh-lxj-remote/package.json')))
   assert.equal(installed.version, JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version)
   console.log('PASS native first install, restart and empty-session/identity verification; no model calls')
 } finally {

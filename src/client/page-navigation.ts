@@ -10,7 +10,7 @@ export async function openPluginPage(get: (name: string) => unknown): Promise<bo
     if (typeof navigation?.openBundle !== 'function' || typeof manager?.listBundles !== 'function') return false
     const result = await manager.listBundles()
     if (!result.ok || !Array.isArray(result.value)) return false
-    const owners = result.value.filter(bundle => bundle.enabled && ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote'].includes(bundle.name))
+    const owners = result.value.filter(bundle => bundle.enabled && ['dsh-lxj-remote-installer', 'dsh-lxj-remote'].includes(bundle.name))
     // An ambiguous install must not route to an arbitrary other owner.
     if (owners.length !== 1) return false
     const current = get('pluginNavigation') as Navigation | undefined

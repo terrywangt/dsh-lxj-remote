@@ -1,6 +1,15 @@
 import type { InstallRuntime } from './install-runtime.js';
-export declare const PLUGIN_PACKAGE = "@harness-remote/dsh-wechat-remote";
-export declare const NATIVE_PLUGIN_PACKAGE = "dsh-wechat-remote";
+export declare const PLUGIN_PACKAGE = "dsh-lxj-remote";
+/** Two distinct install-owner slots, exactly as upstream: the core bundle a
+ * profile registers (this fork's package), and the separate npm CLI installer
+ * artifact. Keeping them distinct is what makes ownership detection work. */
+export declare const NATIVE_PLUGIN_PACKAGE = "dsh-lxj-remote-installer";
+/** Upstream package ids. A profile that registers one of these together with
+ * the fork is refused: the two artifacts share one node identity file
+ * (~/.dsh/harness-remote/instances/<key>/identity.json), so both would enroll
+ * the same nodeId and fight over the relay's single agent slot — the
+ * enroll/evict storm this release fixes. */
+export declare const FOREIGN_PLUGIN_PACKAGES: readonly ["@harness-remote/dsh-wechat-remote", "dsh-wechat-remote"];
 export type WebInstallPackage = typeof PLUGIN_PACKAGE | typeof NATIVE_PLUGIN_PACKAGE;
 export declare class ProfileOwnershipError extends Error {
     constructor(message: string);

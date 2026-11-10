@@ -9,8 +9,8 @@ import { auditArchive, auditNativeRelease, downloadNativeRelease, downloadReleas
 import { writePrivateJsonAtomic } from './secure-file.js'
 import { symbols } from '@deepseek-ai/cordis'
 
-const bundleName = 'dsh-wechat-remote'
-const coreName = '@harness-remote/dsh-wechat-remote'
+const bundleName = 'dsh-lxj-remote-installer'
+const coreName = 'dsh-lxj-remote'
 const inPlaceUpdateUnsupported = '当前 DSH 不支持通过此方式覆盖更新，现有插件未改动。'
 type Owner = typeof bundleName | typeof coreName
 type Phase = 'idle' | 'preparing' | 'installing' | 'restart-required' | 'complete' | 'failed' | 'unknown'

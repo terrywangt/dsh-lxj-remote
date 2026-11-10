@@ -1,59 +1,83 @@
-# Agent远程管理助手
+# dsh-lxj-remote
 
-**在微信里，接着用自己电脑上的 DeepSeek Harness。**
+> **Fork 声明**：本仓库 fork 自 [`martinbear1/dsh-wechat-remote`](https://github.com/martinbear1/dsh-wechat-remote)（上游 `@harness-remote/dsh-wechat-remote` v1.7.16，commit `c1de4604`），上游以 **MIT License** 授权，版权声明与 `LICENSE` 文件完整保留。本项目在其基础上适配「梁小鲸」微信小程序与自托管中继，同样以 MIT 授权发布。
 
-「**Agent远程管理助手**」是手机上的微信小程序，用来查看会话进展、发送任务、处理问答与审批、收取任务文件。本仓库提供配套的 **DSH 微信连接插件**：装在电脑上，让小程序连接你的 DSH。任务由电脑上的 DSH 执行，手机负责远程操作与查看。
+**在「梁小鲸」小程序里，接着用自己电脑上的 DeepSeek Harness。**
 
-**手机端入口：微信搜索小程序「Agent远程管理助手」。** 电脑需保持开机、联网，并运行 DSH。支持局域网直连与端到端加密公网连接。
+「**梁小鲸**」（AppID `wx49e5c049988127e7`）是手机端微信小程序，用来查看会话进展、发送任务、处理问答与审批、收取任务文件。本仓库提供配套的 **DSH 连接插件**：装在电脑上，让小程序连接你的 DSH。任务由电脑上的 DSH 执行，手机负责远程操作与查看。
 
-插件当前正式版：**1.7.16** · [下载与更新说明](https://github.com/martinbear1/dsh-wechat-remote/releases/tag/v1.7.16)
+**默认中继（relay）：`https://h-wxrelay.1day.wang`（自托管）。** 全新安装无需任何配置即可直连该中继；不再请求任何第三方中继服务器。电脑需保持开机、联网并运行 DSH，支持局域网直连与端到端加密公网连接。
+
+插件当前版本：**1.0.0** · [发布页](https://github.com/terrywangt/dsh-lxj-remote/releases/tag/v1.0.0)
 
 ## 一、安装：在电脑 DSH 中添加插件
 
-打开电脑上的 **DSH → 插件 → 添加插件**，复制下面的包名，安装并启用。Web 与 Desktop 使用同一个包名：
+打开电脑上的 **DSH → 插件 → 添加插件**，粘贴下面的包名，安装并启用（Web 与 Desktop 同一包名）：
 
 ```text
-dsh-wechat-remote@1.7.16
+dsh-lxj-remote@1.0.0
 ```
 
-按安装结果确认是否已生效；如提示需要重启，请结束任务后正常重启对应 DSH。然后打开 **设置 → 微信连接**，或进入 **微信连接插件详情**。
+若你的 DSH 版本要求填写源码地址，使用 GitHub 直装格式：
 
-![安装组图：添加插件并启用，然后打开微信连接生成配对码](.github/readme/install-guide.png)
+```text
+github:terrywangt/dsh-lxj-remote
+```
 
-*图为已有版本的界面示例；安装请复制上方当前版本的包名。*
+按安装结果确认是否已生效；如提示需要重启，请结束任务后正常重启对应 DSH，然后打开 **设置 → 微信连接**，或进入插件详情页。
 
-也可从 [Release](https://github.com/martinbear1/dsh-wechat-remote/releases/tag/v1.7.16) 下载完整安装包 `dsh-wechat-remote-1.7.16.tgz`。`@latest` 可用于选择最新版，但新发布时部分安装环境可能仍选中旧版或要求等待，请按安装提示处理。没有图形插件管理器的旧 Web 环境，见 [安装器使用说明](installer/README.md)。
+> 本仓库把构建产物 `lib/` 一并提交进 git，因此 `github:` 直装和 `npm pack` 两条路径都能拿到完整可运行代码，无需在本机重新执行 `tsc`/`esbuild` 构建。
 
-## 二、配对：在「Agent远程管理助手」小程序里扫码
+## 二、配对：在「梁小鲸」小程序里扫码
 
-1. **电脑上**：打开「微信连接」，点击 **生成二维码**，显示当前电脑节点的配对码。
-2. **手机上**：在微信搜索并打开 **Agent远程管理助手**，选择 **DeepSeek Harness**，点击「开始设置」，按引导进入「扫码配对」。已有节点时，可从小程序「设置 → 节点管理」添加节点。
-3. **在小程序内**点击 **扫描电脑上的配对二维码**，扫描刚才电脑上生成的码，按提示完成绑定。
+1. **电脑上**：打开「微信连接」面板，点击 **生成二维码**。
+2. **手机上**：打开微信里的 **梁小鲸** 小程序，按 **我的 → 远程服务 → 设备管理 → 配对新电脑** 进入扫码页。
+3. **扫描电脑屏幕上的配对二维码**，按提示完成绑定。
 
-![配对组图：微信搜索 Agent远程管理助手，在小程序内扫码，然后查看会话与任务文件](.github/readme/pairing-guide.png)
+二维码载荷（`{v:1,mode:"public-relay",relay,relayOrigin,nodeId,identityPublicKey,ticket,expiresAt,lan}`）与上游及「梁小鲸」配对页完全兼容，本 fork **未改动任何载荷格式**。
 
-配对成功后，在小程序里打开会话列表，选择已有会话继续跟进，或新建会话开始任务。问答、审批和任务文件也在手机上处理。Web 与 Desktop 是独立节点，使用哪一端就配对哪一端；多台电脑可以分别添加。
+配对成功后，在小程序里打开会话列表继续跟进，或新建会话开始任务。Web 与 Desktop 是独立节点，使用哪一端就配对哪一端；多台电脑可分别添加。
 
-完整自动化任务管理需配套新版小程序；若手机暂未提供相应操作，可先在电脑端管理。
+## 三、升级：检查更新
 
-## 三、升级：从已有插件检查更新
+在 **设置 → 微信连接** 或插件详情页点击 **检查更新**。更新目录取自自托管中继：
 
-在电脑 DSH 的 **设置 → 微信连接** 或 **微信连接插件详情**中，点击 **检查更新**，按提示完成安装。**无需先卸载，也不需要重新配对。**
+```text
+https://h-wxrelay.1day.wang/v1/update-policy
+```
 
-- **已生效**：直接继续使用。
-- **提示待重启**：等待任务结束。Desktop 完全退出并重新打开；Web 按原启动方式重启实际服务，仅刷新网页不等于重启。
-- **有多个节点**：Web、Desktop 及不同电脑分别检查更新。
+中继必须返回符合插件 `update-policy` schema（`schemaVersion 1` + `revision`/`issuedAt`/`expiresAt`/`releases`/`blocked`/`retiredDsh`）的目录。若中继只提供占位目录（例如 `{"latest":null}`），插件会把它判定为不可用目录，并显示「兼容信息暂不可用，不影响现有连接」——**这是设计上的降级，不会回落到上游 `relay.xyxfood.xyz`**。发布新版本时请同步更新中继目录，目录中的 `asset.url` 必须是 `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v<版本>/<文件>.tgz`。
 
-<details>
-<summary>旧版升级与安装问题</summary>
+## 四、持久化与兼容性（重要）
 
-- Web 插件 `1.7.13` 若提示“请回到 DSH 原生插件管理页更新”，请正常停止 Web，在原系统用户及环境下运行 `npx -y dsh-wechat-remote@1.7.16`。安装器替换原插件并保留配对与会话，不修改 Desktop。详见 [Web 旧版升级说明](docs/NATIVE-INSTALL.md#web-旧版提示请回到-dsh-原生插件管理页更新)。Desktop `1.7.13` 继续使用插件内更新入口。
-- 从旧 `1.7.14` 首次升级后，如连接暂时不可用或反复重连，请结束任务后完整退出并重开对应 DSH，无需反复安装或重新配对。
-- 重复添加相同包名可能提示“已安装”，不代表完成更新。历史命令行安装不要再叠加另一份插件。
-- 下载或安装失败时，按入口提示检查网络并重试；结果不明时先保留日志与数据，不要删除配对或降低 DSH 版本。
+本 fork 只改**展示层与品牌层**，**不改**任何磁盘持久化路径与标识符，因此从上游升级不会丢失已有 nodeId、配对与局域网凭据：
 
-支持 Windows、macOS 与 Linux 的对应安装流程；具体宿主版本与组合以实际验证为准。公共 Wi-Fi 的设备隔离、代理或网络封锁可能影响连接。
+| 保持不变的内部标识 | 位置 |
+|---|---|
+| 实例存储目录 | `~/.dsh/harness-remote/instances/<key>/` |
+| 节点身份 | `…/instances/<key>/identity.json`（legacy：`~/.dsh/harness-remote-public-identity.json`） |
+| 公网中继配置 | `…/instances/<key>/public.json`（legacy：`~/.dsh/harness-remote-public.json`） |
+| 局域网门状态 | `…/instances/<key>/gate-wechat-state.json` |
+| 存储布局标记 | `storage-layout.json` / `.storage-lock` / `storage-transaction.json` |
+| 配对门端口派生盐 | `harness-remote-gate-v1`（Web 仍为 3092/3093，其他 profile 由 32000 起派生） |
 
-</details>
+因为路径完全兼容，**本 fork 没有一次性迁移代码，也不需要迁移**。已用 `public.json` 手工指定 `relayOrigin` 的用户：该显式配置优先，行为不变；只有**未写 `public.json` 的全新安装**才会使用内置默认中继 `https://h-wxrelay.1day.wang`。
 
-[详细安装与更新说明](docs/NATIVE-INSTALL.md) · [版本更新说明](RELEASE-NOTES.md) · [安全问题报告](SECURITY.md)
+## 五、连接风暴修复（相对上游 v1.7.16）
+
+上游实测会出现 `enroll → ws online → 十几秒到一分钟后 offline → 再 enroll` 的循环（同一 nodeId 24 小时内 122 次 online）。本 fork 在插件侧做了四项修复：重连退避下限、身份租约互斥、握手重试不再轮换单次票据、心跳超时与中继判活窗口错开。详见 [RELEASE-NOTES.md](RELEASE-NOTES.md)；回归测试：
+
+```text
+node scripts/test-relay-connection-storm.mjs
+```
+
+## 六、开发与构建
+
+```text
+npm ci
+npm run bundle      # 重新生成 lib/（tsc + esbuild client + typert）
+npm run typecheck
+npm run test:public-relay
+```
+
+上游许可证与第三方声明见 [LICENSE](LICENSE)、[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES)。安全问题报告沿用 [SECURITY.md](SECURITY.md)。

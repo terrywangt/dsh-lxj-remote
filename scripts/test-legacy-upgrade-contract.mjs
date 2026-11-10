@@ -46,7 +46,7 @@ try {
     const now = Date.now(), target = '1.7.14'
     const release = { version: target, channel: 'stable', dsh: ['0.2.0-rc.2'],
       platforms: ['linux'], architectures: ['x64'], asset: {
-        url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${target}/fixture.tgz`,
+        url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${target}/fixture.tgz`,
         sha256: 'a'.repeat(64), bytes: 1,
       } }
     const catalog = { schemaVersion: 1, revision: 'legacy-contract', issuedAt: now - 1000,
@@ -60,7 +60,7 @@ try {
     const withoutAsset = { ...release }; delete withoutAsset.asset
     policy.validateCatalog({ ...catalog, releases: [withoutAsset] })
     assert.throws(() => policy.validateCatalog({ ...catalog, releases: [{ ...withoutAsset,
-      npmInstaller: { version: target, url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${target}.tgz`,
+      npmInstaller: { version: target, url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${target}.tgz`,
         bytes: 1, sha256: 'b'.repeat(64) },
     }] }), /Invalid release entry/, 'legacy npmInstaller metadata cannot remain without asset')
 

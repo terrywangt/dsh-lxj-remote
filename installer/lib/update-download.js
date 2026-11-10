@@ -16,14 +16,14 @@ function trustedReleaseAsset(asset, version) {
   if (!asset || !/^[a-f0-9]{64}$/.test(asset.sha256) || !Number.isSafeInteger(asset.bytes) || asset.bytes < 1 || asset.bytes > 32 * 1024 * 1024) return false;
   try {
     const u = new URL(asset.url);
-    return u.origin === "https://github.com" && !u.username && !u.password && !u.search && !u.hash && u.pathname.startsWith(`/martinbear1/dsh-wechat-remote/releases/download/v${version}/`) && /^[-A-Za-z0-9_.]+\.tgz$/.test(u.pathname.slice(`/martinbear1/dsh-wechat-remote/releases/download/v${version}/`.length));
+    return u.origin === "https://github.com" && !u.username && !u.password && !u.search && !u.hash && u.pathname.startsWith(`/terrywangt/dsh-lxj-remote/releases/download/v${version}/`) && /^[-A-Za-z0-9_.]+\.tgz$/.test(u.pathname.slice(`/terrywangt/dsh-lxj-remote/releases/download/v${version}/`.length));
   } catch {
     return false;
   }
 }
 function trustedNpmInstaller(source) {
   if (!source || !validVersion(source.version) || !/^[a-f0-9]{64}$/.test(source.sha256) || !Number.isSafeInteger(source.bytes) || source.bytes < 1 || source.bytes > 32 * 1024 * 1024) return false;
-  return source.url === `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${source.version}.tgz`;
+  return source.url === `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${source.version}.tgz`;
 }
 
 // src/update-download.ts
@@ -122,7 +122,7 @@ async function boundedFetch(url, maxBytes, fetcher = fetch) {
     url,
     maxBytes,
     fetcher,
-    [...githubHosts, "relay.xyxfood.xyz"],
+    [...githubHosts, "h-wxrelay.1day.wang"],
     Date.now() + (maxBytes <= 256 * 1024 ? 1e4 : 6e4),
     {}
   );
@@ -173,7 +173,7 @@ function auditArchive(archive, release) {
   const files = visitArchive(archive, (name, data) => {
     if (name === "package/package.json") manifest = readManifest(data);
   });
-  if (!manifest || manifest.name !== "@harness-remote/dsh-wechat-remote" || manifest.version !== release.version || !files.has("package/lib/index.js") || !files.has("package/lib/client.js")) throw new Error("\u66F4\u65B0\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5165\u53E3\u4E0D\u5339\u914D");
+  if (!manifest || manifest.name !== "dsh-lxj-remote" || manifest.version !== release.version || !files.has("package/lib/index.js") || !files.has("package/lib/client.js")) throw new Error("\u66F4\u65B0\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5165\u53E3\u4E0D\u5339\u914D");
   const scripts = manifest.scripts;
   if (["preinstall", "install", "postinstall", "prepare"].some((name) => scripts?.[name])) throw new Error("\u66F4\u65B0\u5305\u5305\u542B\u4E0D\u5141\u8BB8\u7684\u5B89\u88C5\u811A\u672C");
 }
@@ -188,7 +188,7 @@ function pluginFromInstaller(archive, release) {
       plugin = Buffer.from(data);
     }
   });
-  if (!manifest || manifest.name !== "dsh-wechat-remote" || manifest.version !== release.npmInstaller.version || !plugin) throw new Error("\u5907\u7528\u5B89\u88C5\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5185\u7F6E\u63D2\u4EF6\u4E0D\u5339\u914D");
+  if (!manifest || manifest.name !== "dsh-lxj-remote-installer" || manifest.version !== release.npmInstaller.version || !plugin) throw new Error("\u5907\u7528\u5B89\u88C5\u5305\u540D\u79F0\u3001\u7248\u672C\u6216\u5185\u7F6E\u63D2\u4EF6\u4E0D\u5339\u914D");
   auditArchive(plugin, release);
   return plugin;
 }
@@ -208,7 +208,7 @@ function auditNativeArchive(archive, version) {
     if (name === "package/assets/release.json") metadata = readManifest(data);
     if (name === "package/assets/plugin.tgz") plugin = Buffer.from(data);
   });
-  if (manifest?.name !== "dsh-wechat-remote" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || !files.has("package/native/lib/index.js") || !files.has("package/native/lib/client.js") || !files.has("package/cordis.patch.yml") || !plugin || metadata?.version !== version || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) {
+  if (manifest?.name !== "dsh-lxj-remote-installer" || manifest.version !== version || manifest.dsh?.bundle?.patch !== "./cordis.patch.yml" || !files.has("package/native/lib/index.js") || !files.has("package/native/lib/client.js") || !files.has("package/cordis.patch.yml") || !plugin || metadata?.version !== version || ["preinstall", "install", "postinstall", "prepare", "prepack", "postpack"].some((key) => manifest.scripts?.[key])) {
     throw new Error("\u539F\u751F\u5B89\u88C5\u5305\u7ED3\u6784\u6216\u7248\u672C\u4E0D\u5339\u914D");
   }
   const release = metadata.catalog?.releases?.find((row) => row.version === version);

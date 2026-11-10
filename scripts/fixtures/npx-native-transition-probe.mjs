@@ -33,7 +33,7 @@ export async function apply(ctx) {
         // The harness keeps this value in memory and never prints it in reports.
         value = { url: ctx.get('connection').authenticatedUrl(config.origin) }
       } else if (req.url === '/inspect-latest' && req.method === 'GET') {
-        value = await ctx.get('pluginManager').inspect('dsh-wechat-remote@latest')
+        value = await ctx.get('pluginManager').inspect('dsh-lxj-remote-installer@latest')
       } else if (req.url === '/native-result' && req.method === 'GET') {
         value = installResult ? await installResult : null
       } else if (req.url === '/exit' && req.method === 'POST') {

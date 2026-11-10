@@ -25,7 +25,7 @@ const manifestOf = file => {
   return JSON.parse(value.stdout)
 }
 const oldManifest = manifestOf(baseline), nextManifest = manifestOf(candidate)
-const owner = '@harness-remote/dsh-wechat-remote'
+const owner = 'dsh-lxj-remote'
 assert.equal(oldManifest.name, owner); assert.equal(nextManifest.name, owner)
 assert(['1.7.10', '1.7.13'].includes(oldManifest.version), 'use a published historical baseline')
 const dshRoot = path.resolve(cli, '../..'), dshManifest = JSON.parse(fs.readFileSync(path.join(dshRoot, 'package.json')))
@@ -55,7 +55,7 @@ Object.assign(env, { DSH_HOME: home, PATH: bin + path.delimiter + inheritedPath,
   HARNESS_INSTALL_NODE: process.execPath, HARNESS_INSTALL_PNPM: pnpm, CI: 'true', COREPACK_ENABLE_AUTO_PIN: '0',
   npm_config_manage_package_manager_versions: 'false' })
 fs.mkdirSync(home)
-write(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
+write(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
 write(path.join(root, 'catalog.json'), { schemaVersion: 1, revision: 'isolated-native-upgrade-fixture',
   issuedAt: Date.now() - 1000, expiresAt: Date.now() + 86400000, releases: [], blocked: [], retiredDsh: [] })
 env.HARNESS_REMOTE_UPDATE_CATALOG = path.join(root, 'catalog.json')
@@ -191,7 +191,7 @@ const bindings = () => {
 try {
   await run(['plugin', '--profile', 'web', 'add', `file:${baseline}`, '--ignore-scripts', '--config.frozen-lockfile=false', '--reporter=append-only'], 'baseline-install')
   const initial = JSON.parse(fs.readFileSync(path.join(profile, 'package.json')))
-  assert.deepEqual(initial.dsh.profile.bundles.filter(name => [owner, 'dsh-wechat-remote'].includes(name)), [owner])
+  assert.deepEqual(initial.dsh.profile.bundles.filter(name => [owner, 'dsh-lxj-remote-installer'].includes(name)), [owner])
   fs.writeFileSync(path.join(profile, 'cordis.patch.yml'), JSON.stringify([
     { id: 'session-title-llm', disabled: true },
     { insert: [{ id: 'fixture-native-upgrade', name: pathToFileURL(probe).href }] },
@@ -210,7 +210,7 @@ try {
   await stop()
   const after = await launch('after')
   assert.equal(after.described.value.pluginVersion, nextManifest.version)
-  const owners = after.bundles.filter(bundle => [owner, 'dsh-wechat-remote'].includes(bundle.name) && bundle.installed)
+  const owners = after.bundles.filter(bundle => [owner, 'dsh-lxj-remote-installer'].includes(bundle.name) && bundle.installed)
   assert.equal(owners.length, 1)
   assert.equal(owners[0].name, owner); assert.equal(owners[0].version, nextManifest.version)
   assert(after.sessions.items.some(session => session.sessionId === 'session-upgrade-fixture'))
@@ -226,7 +226,7 @@ try {
   for (const [file, digest] of Object.entries(beforeFiles)) assert.equal(afterFiles[file], digest, `preexisting fixture data changed: ${file}`)
   assert.deepEqual(bindings(), beforeBindings, 'synthetic pairing/identity changed')
   const finalManifest = JSON.parse(fs.readFileSync(path.join(profile, 'package.json')))
-  assert.deepEqual(finalManifest.dsh.profile.bundles.filter(name => [owner, 'dsh-wechat-remote'].includes(name)), [owner])
+  assert.deepEqual(finalManifest.dsh.profile.bundles.filter(name => [owner, 'dsh-lxj-remote-installer'].includes(name)), [owner])
   report.checks.push({ stage: 'cold-restart', runtimeVersion: after.described.value.pluginVersion, singleOwner: true,
     nativeStandardPresetPreserved: true, ungrantedCollaborationPresetsRemainAbsent: true, nativeComponentsActive: true,
     nativeFixtureSessionPreserved: true, fixtureFileHashesPreserved: true, syntheticPairingPreserved: true })

@@ -33,7 +33,7 @@ if (process.argv[2]) {
   const payload = JSON.parse(execFileSync('tar', ['-xOf', process.argv[2], 'package/package.json'], {
     encoding: 'utf8', windowsHide: true, timeout: 10000, maxBuffer: 1024 * 1024,
   }))
-  if (payload.name !== '@harness-remote/dsh-wechat-remote' || !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(payload.version)) throw new Error('Invalid plugin payload')
+  if (payload.name !== 'dsh-lxj-remote' || !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(payload.version)) throw new Error('Invalid plugin payload')
   const version = payload.version
   const archive = fs.readFileSync(process.argv[2]), assets = path.join(root, 'installer/assets')
   fs.mkdirSync(assets, { recursive: true })
@@ -41,7 +41,7 @@ if (process.argv[2]) {
   // automatically proof of a new installer's compatibility or admission rules.
   const release = { version, channel: version.includes('-') ? 'preview' : 'stable', dsh: [],
     platforms: [], architectures: [], asset: {
-      url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/harness-remote-dsh-wechat-remote-${version}.tgz`,
+      url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/dsh-lxj-remote-${version}.tgz`,
       sha256: createHash('sha256').update(archive).digest('hex'), bytes: archive.length } }
   // Evidence only: this flag records a completed hardware test, never grants
   // permission to install/update/restart. Untested CPUs follow the same flow.

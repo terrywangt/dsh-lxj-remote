@@ -13,10 +13,10 @@ import { bundledResourceReleases } from '../lib/private-resources/bundled.js'
 
 const read = file => JSON.parse(fs.readFileSync(file, 'utf8'))
 const manifest = read('installer/package.json'), version = manifest.version
-const artifact = path.resolve(process.argv[2] || `installer/dsh-wechat-remote-${version}.tgz`)
+const artifact = path.resolve(process.argv[2] || `installer/dsh-lxj-remote-installer-${version}.tgz`)
 const bytes = fs.readFileSync(artifact), core = fs.readFileSync('installer/assets/plugin.tgz')
 const release = read('installer/assets/release.json').catalog.releases[0]
-release.npmInstaller = { version, url: `https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-${version}.tgz`,
+release.npmInstaller = { version, url: `https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-${version}.tgz`,
   bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') }
 assert.deepEqual(pluginFromInstaller(bytes, release), core)
 if (process.env.HARNESS_LEGACY_PLUGIN_ROOT) {
@@ -55,50 +55,50 @@ try {
   }
   assert(fs.readFileSync(path.join(native, 'THIRD-PARTY-NOTICES/wechat-artwork.txt'), 'utf8').includes('https://pc.weixin.qq.com/'))
   const selfResources = createRequire(path.join(outer, 'package.json'))
-  assert.equal(read(selfResources.resolve('dsh-wechat-remote/locale/zh.json')).meta.description, outerMeta.description)
+  assert.equal(read(selfResources.resolve('dsh-lxj-remote-installer/locale/zh.json')).meta.description, outerMeta.description)
   for (const [entry, file] of [['group-assistants', 'group-assistants-component.js'], ['resource-library', 'resource-library-component.js'], ['private-resource-prompt', 'private-resources/native.js'], ['resource-library/chat-compaction', 'private-resources/chat-compaction.js'], ['resource-library/chat-memory', 'private-resources/chat-memory.js']]) {
     assert.equal(outerMeta.exports[`./${entry}`], `./native/lib/${file}`)
     assert.equal(nativeMeta.exports[`./${entry}`].default, `./lib/${file}`)
-    assert.equal(selfResources.resolve(`dsh-wechat-remote/${entry}`), path.join(native, 'lib', file))
+    assert.equal(selfResources.resolve(`dsh-lxj-remote-installer/${entry}`), path.join(native, 'lib', file))
   }
-  assert(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes("name: 'dsh-wechat-remote/resource-library'"))
+  assert(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes("name: 'dsh-lxj-remote-installer/resource-library'"))
   for (const language of ['en', 'zh']) {
-    const file = selfResources.resolve(`dsh-wechat-remote/resource-library/locale/${language}.json`)
+    const file = selfResources.resolve(`dsh-lxj-remote-installer/resource-library/locale/${language}.json`)
     assert(file.startsWith(native + path.sep)); assert.equal(typeof read(file).meta.title, 'string')
   }
   assert.equal(outerMeta.exports['./clawbot'], './native/lib/clawbot-component.js')
   assert.equal(nativeMeta.exports['./clawbot'].default, './lib/clawbot-component.js')
-  assert.equal(createRequire(path.join(outer, 'package.json')).resolve('dsh-wechat-remote/clawbot'), path.join(native, 'lib/clawbot-component.js'))
-  assert(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes("name: 'dsh-wechat-remote/clawbot'"))
+  assert.equal(createRequire(path.join(outer, 'package.json')).resolve('dsh-lxj-remote-installer/clawbot'), path.join(native, 'lib/clawbot-component.js'))
+  assert(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes("name: 'dsh-lxj-remote-installer/clawbot'"))
   assert(fs.readFileSync(path.join(native, 'THIRD-PARTY-NOTICES/clawbot.txt'), 'utf8').includes('Copyright (C) 2026 Tencent'))
   assert.equal(outerMeta.exports['./collaboration'], './native/lib/collaboration.js')
   assert.equal(nativeMeta.exports['./collaboration'].default, './lib/collaboration.js')
   assert(fs.existsSync(path.join(native, 'lib/human-tools/scoped-capabilities.js')))
-  assert.equal(createRequire(path.join(outer, 'package.json')).resolve('dsh-wechat-remote/collaboration'), path.join(native, 'lib/collaboration.js'))
+  assert.equal(createRequire(path.join(outer, 'package.json')).resolve('dsh-lxj-remote-installer/collaboration'), path.join(native, 'lib/collaboration.js'))
   assert(!fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes('/collaboration'), 'collaboration must not appear in the global Desktop bundle patch')
   assert.equal(outerMeta.dsh.bundle.patch, './cordis.patch.yml')
   assert.match(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8'), /name: '\.\/native\/index\.js'/)
   assert.equal(outerMeta.exports['.'], undefined, 'the Loader path must retain nested core ownership of its client half')
   assert.deepEqual(fs.readFileSync(path.join(native, 'index.js')), fs.readFileSync('installer/native-entry.mjs'))
   for (const component of ['teacher', 'project', 'customizer']) {
-    assert(!fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes(`dsh-wechat-remote/assistant-${component}`), 'individual presets are not top-level bundle components')
+    assert(!fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8').includes(`dsh-lxj-remote-installer/assistant-${component}`), 'individual presets are not top-level bundle components')
     assert(fs.existsSync(path.join(native, `lib/assistant-presets/builtin-${component}.js`)))
     assert.equal(nativeMeta.exports[`./assistant-${component}`].default, `./lib/assistant-presets/builtin-${component}.js`)
     assert.equal(outerMeta.exports[`./assistant-${component}`], `./native/lib/assistant-presets/builtin-${component}.js`)
     const self = createRequire(path.join(outer, 'package.json'))
-    assert.equal(self.resolve(`dsh-wechat-remote/assistant-${component}`), path.join(native, `lib/assistant-presets/builtin-${component}.js`))
+    assert.equal(self.resolve(`dsh-lxj-remote-installer/assistant-${component}`), path.join(native, `lib/assistant-presets/builtin-${component}.js`))
     for (const language of ['en', 'zh']) {
-      const resource = self.resolve(`dsh-wechat-remote/assistant-${component}/locale/${language}.json`)
+      const resource = self.resolve(`dsh-lxj-remote-installer/assistant-${component}/locale/${language}.json`)
       assert(resource.startsWith(native + path.sep)); assert.equal(typeof read(resource).meta.title, 'string')
     }
   }
-  assert.match(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8'), /dsh-wechat-remote\/group-assistants/)
+  assert.match(fs.readFileSync(path.join(outer, 'cordis.patch.yml'), 'utf8'), /dsh-lxj-remote-installer\/group-assistants/)
   for (const language of ['en', 'zh']) {
-    const resource = selfResources.resolve(`dsh-wechat-remote/group-assistants/locale/${language}.json`)
+    const resource = selfResources.resolve(`dsh-lxj-remote-installer/group-assistants/locale/${language}.json`)
     assert.equal(typeof read(resource).meta.title, 'string')
   }
   assert.equal(nativeMeta.version, version)
-  assert.equal(nativeMeta.name, '@harness-remote/dsh-wechat-remote')
+  assert.equal(nativeMeta.name, 'dsh-lxj-remote')
   assert.equal(nativeMeta.dsh.client.platform, 'web')
   assert.equal(outerMeta.peerDependencies, undefined, 'npx must not resolve a DSH host peer tree')
   for (const hook of ['install', 'preinstall', 'postinstall']) assert.equal(outerMeta.scripts?.[hook], undefined)
@@ -116,7 +116,7 @@ try {
   const help = execFileSync(process.execPath, [path.join(outer, 'bin/setup.mjs'), '--help'], {
     cwd: stage, encoding: 'utf8', windowsHide: true, timeout: 10000,
   })
-  assert.match(help, /dsh-wechat-remote/)
+  assert.match(help, /dsh-lxj-remote-installer/)
   console.log(`PASS dual-entry artifact: ${paths.length} exact core files, native metadata, bundled dependencies, clean CLI --help, bounded npm recovery${process.env.HARNESS_LEGACY_PLUGIN_ROOT ? ' with legacy reader' : ''}; ${bytes.length} compressed bytes`)
 } finally {
   assert.equal(path.dirname(stage), path.resolve(tmpdir()))

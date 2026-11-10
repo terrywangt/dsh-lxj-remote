@@ -8,7 +8,7 @@ import { nativeChatCompactionModule, nativeChatMemoryModule, resourceChatComposi
 
 export interface ResourceHost { get(name: string): any }
 export interface NativeResourceOptions { codec?: NativePresetCodec; promptModule?: string; collaborationModule?: string; chatCompactionModule?: string; chatMemoryModule?: string }
-const collaborationNames = ['dsh-wechat-remote/collaboration', '@harness-remote/dsh-wechat-remote/collaboration']
+const collaborationNames = ['dsh-lxj-remote-installer/collaboration', 'dsh-lxj-remote/collaboration']
 const collaborationId = COLLABORATION_COMPONENT_ID
 const promptVariable = 'harness_private_resource_prompt'
 /** Trusted shipped helper, not cloud code. Native interpolation is single-pass:
@@ -26,7 +26,7 @@ export default class ResourcePromptData {
 }
 function ownPromptModule(): string {
   const resolve = createRequire(import.meta.url).resolve, own = realpathSync(new URL('./native.js', import.meta.url))
-  for (const name of ['dsh-wechat-remote/private-resource-prompt', '@harness-remote/dsh-wechat-remote/private-resource-prompt']) {
+  for (const name of ['dsh-lxj-remote-installer/private-resource-prompt', 'dsh-lxj-remote/private-resource-prompt']) {
     try { if (realpathSync(resolve(name)) === own) return name } catch { /* Try only our two supported package layouts. */ }
   }
   throw resourceError('resource-host-unavailable', '当前插件尚未提供预设加载组件，请更新插件。')

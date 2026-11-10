@@ -11,7 +11,7 @@ for (const release of catalog.releases) {
   // to legacy catalog readers, which require nonempty evidence. This is a
   // publication gate, NEVER an OS/CPU admission rule for installing the plugin.
   if (!release.dsh.length || !release.platforms.length || !release.architectures.length) throw new Error('Record actual test evidence before publishing the catalog; unverified research metadata is local only')
-  const response = await fetch(`https://api.github.com/repos/martinbear1/dsh-wechat-remote/releases/tags/v${release.version}`, {
+  const response = await fetch(`https://api.github.com/repos/terrywangt/dsh-lxj-remote/releases/tags/v${release.version}`, {
     headers: { accept: 'application/vnd.github+json' }, redirect: 'error', signal: AbortSignal.timeout(15000),
   })
   if (!response.ok) throw new Error(`Release v${release.version} is not publicly available`)

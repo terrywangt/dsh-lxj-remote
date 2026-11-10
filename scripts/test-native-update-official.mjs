@@ -42,7 +42,7 @@ if (process.env.HARNESS_OFFICIAL_UPDATE_RECOVERY || process.env.HARNESS_OFFICIAL
   const installedRoot = path.join(profile.dir, 'node_modules', ...owner.split('/'))
   const installed = JSON.parse(fs.readFileSync(path.join(installedRoot, 'package.json'), 'utf8'))
   assert.equal(installed.name, owner); assert.equal(installed.version, version)
-  const updaterModule = owner === 'dsh-wechat-remote' ? 'native/lib/native-update-service.js' : 'lib/native-update-service.js'
+  const updaterModule = owner === 'dsh-lxj-remote-installer' ? 'native/lib/native-update-service.js' : 'lib/native-update-service.js'
   const { NativeUpdateService } = await import(pathToFileURL(path.join(installedRoot, updaterModule)).href)
   const manifestPath = path.join(profile.dir, 'package.json'), before = fs.readFileSync(manifestPath)
   let host, recovered
@@ -69,7 +69,7 @@ if (process.env.HARNESS_OFFICIAL_UPDATE_RECOVERY || process.env.HARNESS_OFFICIAL
     assert.equal(status.phase, continuation ? 'restart-required' : 'complete', JSON.stringify(status))
     assert.equal(status.targetVersion, expectedVersion)
     assert.equal(recovered.isBusy(), false)
-    const rows = (await manager.listBundles()).filter(row => ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote'].includes(row.name))
+    const rows = (await manager.listBundles()).filter(row => ['dsh-lxj-remote-installer', 'dsh-lxj-remote'].includes(row.name))
     assert.equal(rows.length, 1); assert.equal(rows[0].name, owner); assert.equal(rows[0].version, expectedVersion)
     if (continuation) assert.equal(JSON.parse(fs.readFileSync(manifestPath)).dependencies[owner], expectedVersion, 'file first hop must return to the same native registry owner')
     else assert.deepEqual(fs.readFileSync(manifestPath), before, 'recovery must not reinstall or change the profile')
@@ -124,7 +124,7 @@ if (process.env.HARNESS_OFFICIAL_UPDATE_RECOVERY || process.env.HARNESS_OFFICIAL
       ? path.resolve(process.env.HARNESS_UPDATE_TRANSITION_ARCHIVE) : undefined
     const transitionBytes = transitionArchive ? fs.readFileSync(transitionArchive) : undefined
     const transitionManifest = transitionBytes ? JSON.parse(entry(transitionBytes, 'package/package.json')) : undefined
-    const outer = 'dsh-wechat-remote'
+    const outer = 'dsh-lxj-remote-installer'
     assert.equal(oldManifest.name, outer); assert.equal(targetManifest.name, outer)
     assert.notEqual(oldManifest.version, targetManifest.version)
     if (transitionManifest) {
@@ -181,7 +181,7 @@ if (process.env.HARNESS_OFFICIAL_UPDATE_RECOVERY || process.env.HARNESS_OFFICIAL
     fs.mkdirSync(path.dirname(installAnchor)); fs.writeFileSync(installAnchor, '{"dependencies":{}}\n')
     const config = path.join(stage, 'root.yml'); fs.writeFileSync(config, '[]\n')
     const release = { version: targetManifest.version, channel: 'preview', asset: {
-      url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${targetManifest.version}/plugin.tgz`,
+      url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${targetManifest.version}/plugin.tgz`,
       ...(() => { const bytes = entry(targetBytes, 'package/assets/plugin.tgz'); return { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') } })(),
     }, npmInstaller: { version: targetManifest.version, url: `https://registry.npmjs.org/${outer}/-/${outer}-${targetManifest.version}.tgz`,
       bytes: targetBytes.length, sha256: createHash('sha256').update(targetBytes).digest('hex') } }
@@ -194,7 +194,7 @@ if (process.env.HARNESS_OFFICIAL_UPDATE_RECOVERY || process.env.HARNESS_OFFICIAL
       assert.equal(String(url), release.npmInstaller.url, 'unexpected external update request')
       return previousFetch(`${origin}/${outer}/-/${outer}-${targetManifest.version}.tgz`, options)
     }
-    const core = '@harness-remote/dsh-wechat-remote'
+    const core = 'dsh-lxj-remote'
     const targetCore = entry(targetBytes, 'package/assets/plugin.tgz')
     for (const [name, scope, Updater, owner] of [
       ['released-desktop', 'desktop', BaselineUpdater, outer],

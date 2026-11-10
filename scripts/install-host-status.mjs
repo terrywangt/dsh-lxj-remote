@@ -15,7 +15,7 @@ if (fs.existsSync(updates)) for (const name of fs.readdirSync(updates).filter(x 
   } catch {}
 }
 let version
-try { version = JSON.parse(fs.readFileSync(path.join(home, 'profiles/web/node_modules/@harness-remote/dsh-wechat-remote/package.json'), 'utf8')).version } catch {}
+try { version = JSON.parse(fs.readFileSync(path.join(home, 'profiles/web/node_modules/dsh-lxj-remote/package.json'), 'utf8')).version } catch {}
 console.log(JSON.stringify({ platform: process.platform, plugin: version, jobs: results.sort((a,b) => b.updated-a.updated).slice(0,2) }, null, 2))
 if (process.platform === 'darwin') {
   try { const output = execFileSync('/bin/launchctl', ['print', `gui/${process.getuid()}/com.harnessremote.dsh-web`], { encoding: 'utf8' }); console.log(output.split('\n').filter(s => /^\s*(state|pid|last exit code) =/.test(s)).join('\n')) } catch { console.log('Original launchd service not loaded') }

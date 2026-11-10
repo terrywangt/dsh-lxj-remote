@@ -205,7 +205,7 @@ test('native preview is read-only, data-only and pins inherited plugins without 
   assert.deepEqual((await readdir(f.profile)).sort(), ['cordis.patch.yml', 'package.json'])
   const row = JSON.parse(preview.patch)[0].insert[0]
   assert.deepEqual(row.config.plugins.slice(1, -1), base().slice(1))
-  assert.deepEqual(row.config.plugins.at(-1), { id: 'harness-collaboration', name: '@harness-remote/dsh-wechat-remote/collaboration' })
+  assert.deepEqual(row.config.plugins.at(-1), { id: 'harness-collaboration', name: 'dsh-lxj-remote/collaboration' })
   assert.equal(row.config.plugins[0].config.complete, false); assert.equal(row.config.plugins[0].config.includeRuntimeContext, true)
   assert(row.config.plugins[0].config.prefix.includes('项目助理')); assert.equal(row.config.plugins[0].config.suffix, 'Directory {{cwd}}')
   assert.equal(createHash('sha256').update(preview.patch).digest('hex'), preview.patchDigest)

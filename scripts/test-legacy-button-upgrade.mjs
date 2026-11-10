@@ -31,7 +31,7 @@ const tarFile = (file, member) => {
 }
 const oldManifest = JSON.parse(tarFile(baseline, 'package/package.json'))
 const nextManifest = JSON.parse(tarFile(candidate, 'package/package.json'))
-const owner = '@harness-remote/dsh-wechat-remote'
+const owner = 'dsh-lxj-remote'
 assert.equal(oldManifest.name, owner); assert.equal(nextManifest.name, owner)
 const frozen = {
   '1.7.10': '5eb3b67760f15f3d468b5c85d84c595e9ba7b9c94bfb70eec8c0f5476e64a2dc',
@@ -42,17 +42,17 @@ assert.equal(sha(tarFile(baseline, 'package/lib/update-worker.js')), frozen[oldM
 const dsh = JSON.parse(fs.readFileSync(path.resolve(cli, '../../package.json')))
 assert.equal(dsh.name, '@deepseek-ai/dsh')
 const candidateBytes = fs.readFileSync(candidate)
-const releaseUrl = `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${nextManifest.version}/harness-remote-dsh-wechat-remote-${nextManifest.version}.tgz`
+const releaseUrl = `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${nextManifest.version}/dsh-lxj-remote-${nextManifest.version}.tgz`
 const report = { scope: 'frozen published Web check/start/worker against real official DSH',
   fixture: root, dsh: dsh.version, from: oldManifest.version, to: nextManifest.version,
   baselineSha256: sha(fs.readFileSync(baseline)), candidateSha256: sha(candidateBytes), frozenWorkerSha256: frozen[oldManifest.version],
   scenario, manager, checks: [], ok: false }
 fs.mkdirSync(root, { recursive: true, mode: 0o700 })
 const home = path.join(root, 'home'), profile = path.join(home, 'profiles/web')
-const manifestFile = path.join(profile, 'node_modules/@harness-remote/dsh-wechat-remote/package.json')
+const manifestFile = path.join(profile, 'node_modules/dsh-lxj-remote/package.json')
 const json = (file, value) => fs.writeFileSync(file, JSON.stringify(value, null, 2), { mode: 0o600 })
 fs.mkdirSync(home)
-json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
+json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
 const catalog = path.join(root, 'catalog.json')
 json(catalog, { schemaVersion: 1, revision: 'isolated-frozen-button', issuedAt: Date.now() - 1000,
   expiresAt: Date.now() + 3600000, releases: [{ version: nextManifest.version, channel: 'preview',
@@ -298,7 +298,7 @@ try {
     assert.deepEqual(JSON.parse(fs.readFileSync(path.join(jobDirectory, 'verification-complete.json'))), { id: job.id })
     const after = await ready(nextManifest.version)
     assert.notEqual(after.pid, original.pid)
-    const owners = after.bundles.filter(bundle => [owner, 'dsh-wechat-remote'].includes(bundle.name) && bundle.installed)
+    const owners = after.bundles.filter(bundle => [owner, 'dsh-lxj-remote-installer'].includes(bundle.name) && bundle.installed)
     assert.equal(owners.length, 1); assert.equal(owners[0].name, owner)
     assert.equal(owners[0].version, nextManifest.version)
     assert(after.sessions.items.some(item => item.sessionId === sessionId))

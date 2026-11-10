@@ -69,9 +69,9 @@ try {
     assert.equal(process.cwd(),${JSON.stringify(home)});
     assert.equal(process.argv[5],'add');assert.equal(process.argv[6],${JSON.stringify('file:' + archiveName)});
     assert(fs.existsSync(path.join(dir,${JSON.stringify(archiveName)})));
-    const pkg=path.join(dir,'node_modules/@harness-remote/dsh-wechat-remote');fs.mkdirSync(pkg,{recursive:true});
+    const pkg=path.join(dir,'node_modules/dsh-lxj-remote');fs.mkdirSync(pkg,{recursive:true});
     fs.writeFileSync(path.join(pkg,'package.json'),JSON.stringify({version:'1.7.7'}));
-    before.dsh.profile.bundles.push('@harness-remote/dsh-wechat-remote');fs.writeFileSync(file,JSON.stringify(before));`)
+    before.dsh.profile.bundles.push('dsh-lxj-remote');fs.writeFileSync(file,JSON.stringify(before));`)
   const runtime = { executable: process.execPath, cli, version: 'fixture' }
   await installProfile({ profile: active, directory: job, cli, runtime, targetVersion: '1.7.7' })
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(active, 'package.json'))).dependencies, original.dependencies)
@@ -92,7 +92,7 @@ try {
   assert.equal(fs.readFileSync(path.join(active, refreshedName), 'utf8'), 'changed candidate bytes')
   console.log('PASS changed same-version archives use distinct native sources without overwriting prior bytes')
 
-  const installedManifest = path.join(active, 'node_modules/@harness-remote/dsh-wechat-remote/package.json')
+  const installedManifest = path.join(active, 'node_modules/dsh-lxj-remote/package.json')
   const originalPrefix = archiveName.slice(0, -4)
   fs.writeFileSync(cli, `const fs=require('fs');
     fs.writeFileSync(${JSON.stringify(selectedSource)},process.argv[6].slice(5));

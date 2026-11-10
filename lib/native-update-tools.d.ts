@@ -2,7 +2,7 @@ import { type Context } from '@deepseek-ai/cordis';
 import { type InstallRuntime } from './install-runtime.js';
 interface ToolRecord {
     schema: 1;
-    owner: 'dsh-wechat-remote';
+    owner: 'dsh-lxj-remote-installer';
     runtime: InstallRuntime;
     command: string;
     digest: string;

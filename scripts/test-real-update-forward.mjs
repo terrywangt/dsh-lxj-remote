@@ -21,17 +21,17 @@ const dsh = JSON.parse(fs.readFileSync(path.resolve(cli, '../../package.json')))
 assert.equal(dsh.name, '@deepseek-ai/dsh')
 fs.mkdirSync(root, { recursive: true, mode: 0o700 })
 const home = path.join(root, 'home'), profile = path.join(home, 'profiles/web')
-const plugin = path.join(profile, 'node_modules/@harness-remote/dsh-wechat-remote')
+const plugin = path.join(profile, 'node_modules/dsh-lxj-remote')
 fs.mkdirSync(plugin, { recursive: true })
 const json = (p, v) => fs.writeFileSync(p, JSON.stringify(v, null, 2), { mode: 0o600 })
 const pause = ms => new Promise(r => setTimeout(r, ms))
 const sha = b => createHash('sha256').update(b).digest('hex')
 const report = { platform: process.platform, arch: process.arch, dsh: dsh.version, checks: [], ok: false }
 json(path.join(home, '.harness-remote-compat-fixture'), { purpose: 'forward updater', root })
-json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://relay.xyxfood.xyz' })
+json(path.join(home, 'harness-remote-public.json'), { enabled: false, relayOrigin: 'https://h-wxrelay.1day.wang' })
 json(path.join(profile, 'package.json'), { name: 'isolated-update-profile', private: true,
-  dependencies: { '@harness-remote/dsh-wechat-remote': 'file:baseline.tgz' },
-  dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', '@harness-remote/dsh-wechat-remote'], patchReload: 'live' } } })
+  dependencies: { 'dsh-lxj-remote': 'file:baseline.tgz' },
+  dsh: { profile: { bundles: ['@deepseek-ai/dsh-base', '@deepseek-ai/dsh-web-app', 'dsh-lxj-remote'], patchReload: 'live' } } })
 fs.copyFileSync(baseline, path.join(profile, 'baseline.tgz'))
 fs.writeFileSync(path.join(profile, 'cordis.patch.yml'), '# Isolated updater fixture\n- id: session-title-llm\n  disabled: true\n')
 const extracted = spawnSync('tar', ['-xzf', baseline, '-C', plugin, '--strip-components=1'], { windowsHide: true, encoding: 'utf8' })
@@ -43,7 +43,7 @@ const [major, minor, patch] = candidateVersion.split('-')[0].split('.').map(Numb
 const nextVersion = `${major}.${minor}.${patch + 1}-test.1`, brokenVersion = `${major}.${minor}.${patch + 1}-test.2`
 const release = (version, bytes) => ({ version, channel: version.includes('-') ? 'preview' : 'stable', dsh: [dsh.version],
   platforms: [{ win32: 'windows', darwin: 'macos', linux: 'linux' }[process.platform]], architectures: [process.arch], asset: {
-    url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/harness-remote-dsh-wechat-remote-${version}.tgz`,
+    url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/dsh-lxj-remote-${version}.tgz`,
     sha256: sha(bytes), bytes: bytes.length } })
 const catalog = (rel, revision) => ({ schemaVersion: 1, revision, issuedAt: Date.now() - 1000,
   expiresAt: Date.now() + 3600000, releases: [rel], blocked: [], retiredDsh: [] })

@@ -1,6 +1,33 @@
 import { type AgentCapability } from './agent-metadata.js';
 import type { HostPlatformDescriptor } from './host-platform.js';
-export declare const DEFAULT_PUBLIC_RELAY_ORIGIN = "https://relay.xyxfood.xyz";
+export declare const DEFAULT_PUBLIC_RELAY_ORIGIN = "https://h-wxrelay.1day.wang";
+export interface RelayLeaseOptions {
+    readonly leaseDir?: string;
+    readonly now?: () => number;
+    readonly pid?: number;
+}
+export declare class RelayTransportLease {
+    readonly directory: string;
+    private readonly now;
+    private readonly pid;
+    private readonly token;
+    private holder;
+    private timer;
+    /** `leaseDir` defaults beside the caller's own base directory, i.e. next to
+     * the identity.json it guards, so the lease inherits the exact instance
+     * storage scope of the key and follows portable/test overrides. */
+    constructor(nodeId: string, identityDirectory: string, options?: RelayLeaseOptions);
+    /** True when this process may enroll and connect; false means "another live
+     * process already owns this node, so stay quiet instead of fighting it". */
+    acquire(): boolean;
+    /** Keep the lease alive; reports whether we still hold it. */
+    renew(): boolean;
+    release(): void;
+    startRenewal(onLost: () => void): void;
+    private static processAlive;
+    private read;
+    private write;
+}
 export interface PublicRelayConfig {
     readonly enabled: boolean;
     readonly relayOrigin: string;
@@ -68,6 +95,15 @@ export interface PublicRelayAgentOptions {
         readonly pingIntervalMs?: number;
         readonly pongTimeoutMs?: number;
         readonly handshakeTimeoutMs?: number;
+        readonly connectSettleMs?: number;
+    };
+    /** Cross-process relay transport lease. Production (the host gate) enables
+     * it so a second holder of the same node identity cannot evict the live
+     * relay socket; it defaults to off so single-process fixtures, which freely
+     * reuse one identity file across restarts, keep their existing semantics. */
+    readonly lease?: {
+        readonly enabled: boolean;
+        readonly directory?: string;
     };
 }
 export declare function agentNodeIdForPublicKey(publicKeyPem: string): string;
@@ -86,12 +122,24 @@ export declare class PublicRelayAgent {
     private clearHeartbeat;
     private lifecycleRevision;
     private enrollment;
+    /** Last successful enrollment, reused only to rate-limit pairing refreshes. */
+    private lastEnrollment;
+    /** True while enrollAndConnect holds the lifecycle, so a pairing refresh can
+     * never open a second transport racing the scheduled reconnect. */
+    private lifecycleInFlight;
+    /** Cross-process guard, one per node identity; null when disabled. */
+    private lease;
     private status;
     constructor(config: PublicRelayConfig, options: PublicRelayAgentOptions);
     snapshot(): AgentStatus;
     /** Read account features with this node's existing proof; never mobile state. */
     readFeatures(signal: AbortSignal): Promise<unknown>;
     start(): Promise<void>;
+    /** Another live process owns this node's relay transport: stay silent
+     * instead of enrolling and evicting it. Re-check on a fixed quiet cadence,
+     * never with the error backoff, and never touch the socket or ticket state
+     * the holder owns. */
+    private yieldLease;
     /** Background status can reuse a ticket; an explicit pairing surface must
      * refresh because an unexpired single-use ticket may already be consumed.
      * Enrollment retains the existing identity and owner (except revoked keys).

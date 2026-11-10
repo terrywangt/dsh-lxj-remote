@@ -126,7 +126,7 @@ if (process.argv[2] === '--identity-worker') {
   })
   test('Desktop cannot start CLI restart controller or offer a misleading npx --profile desktop command', async t => {
     const home = fixture(t), ctx = context(home, 'desktop')
-    const release = { version: '1.7.20', channel: 'stable', asset: { url: 'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.20/plugin.tgz', bytes: 100, sha256: 'a'.repeat(64) } }
+    const release = { version: '1.7.20', channel: 'stable', asset: { url: 'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.20/plugin.tgz', bytes: 100, sha256: 'a'.repeat(64) } }
     const advice = { targetVersion: release.version, severity: 'recommended', expiresAt: Date.now() + 60000 }
     const action = updateAction(advice, release, { eligible: true, reason: '' }, false, ctx)
     assert.equal(action.canInstall, false)

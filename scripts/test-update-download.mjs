@@ -15,22 +15,22 @@ function pack(entries) {
   }
   return gzipSync(Buffer.concat([...chunks, Buffer.alloc(1024)]))
 }
-const pluginFiles = [['package/package.json', JSON.stringify({ name:'@harness-remote/dsh-wechat-remote', version:'1.7.9' })], ['package/lib/index.js',''], ['package/lib/client.js','']]
+const pluginFiles = [['package/package.json', JSON.stringify({ name:'dsh-lxj-remote', version:'1.7.9' })], ['package/lib/index.js',''], ['package/lib/client.js','']]
 const plugin = pack(pluginFiles)
-const npmFiles = [['package/package.json',JSON.stringify({ name:'dsh-wechat-remote',version:'1.7.10' })], ['package/assets/plugin.tgz',plugin]]
+const npmFiles = [['package/package.json',JSON.stringify({ name:'dsh-lxj-remote-installer',version:'1.7.10' })], ['package/assets/plugin.tgz',plugin]]
 const installer = pack(npmFiles)
 const digest = data => ({ bytes:data.length, sha256:createHash('sha256').update(data).digest('hex') })
 const release = { version:'1.7.9', channel:'stable', dsh:['0.1.5-rc.1'], platforms:['windows'], architectures:['x64'],
-  asset:{ url:'https://github.com/martinbear1/dsh-wechat-remote/releases/download/v1.7.9/plugin.tgz', ...digest(plugin) },
-  npmInstaller:{ version:'1.7.10',url:'https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-1.7.10.tgz', ...digest(installer) } }
+  asset:{ url:'https://github.com/terrywangt/dsh-lxj-remote/releases/download/v1.7.9/plugin.tgz', ...digest(plugin) },
+  npmInstaller:{ version:'1.7.10',url:'https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-1.7.10.tgz', ...digest(installer) } }
 const catalog = r => ({ schemaVersion:1,revision:'test',issuedAt:1,expiresAt:1000,releases:[r],blocked:[],retiredDsh:[] })
 
 function nativeFixture() {
-  const files = [['package/package.json', JSON.stringify({ name: 'dsh-wechat-remote', version: '1.7.9', dsh: { bundle: { patch: './cordis.patch.yml' } } })],
+  const files = [['package/package.json', JSON.stringify({ name: 'dsh-lxj-remote-installer', version: '1.7.9', dsh: { bundle: { patch: './cordis.patch.yml' } } })],
     ['package/assets/plugin.tgz', plugin], ['package/assets/release.json', JSON.stringify({ version: '1.7.9', catalog: catalog(release) })],
     ['package/native/lib/index.js', ''], ['package/native/lib/client.js', ''], ['package/cordis.patch.yml', '']]
   const archive = pack(files)
-  const native = { ...release, npmInstaller: { version: '1.7.9', url: 'https://registry.npmjs.org/dsh-wechat-remote/-/dsh-wechat-remote-1.7.9.tgz', ...digest(archive) } }
+  const native = { ...release, npmInstaller: { version: '1.7.9', url: 'https://registry.npmjs.org/dsh-lxj-remote-installer/-/dsh-lxj-remote-installer-1.7.9.tgz', ...digest(archive) } }
   return { files, archive, native }
 }
 
@@ -39,7 +39,7 @@ test('Desktop retains and audits the complete native bundle, never the CLI core 
   assert.deepEqual(await downloadNativeRelease(native, async () => new Response(archive)), archive)
   await assert.rejects(downloadNativeRelease(release, async () => assert.fail('mismatched version')))
   await assert.rejects(downloadNativeRelease(native, async () => new Response(Buffer.alloc(archive.length))))
-  const withScript = pack([[files[0][0], JSON.stringify({ name: 'dsh-wechat-remote', version: '1.7.9', scripts: { postinstall: 'bad' } })], ...files.slice(1)])
+  const withScript = pack([[files[0][0], JSON.stringify({ name: 'dsh-lxj-remote-installer', version: '1.7.9', scripts: { postinstall: 'bad' } })], ...files.slice(1)])
   await assert.rejects(downloadNativeRelease({ ...native, npmInstaller: { ...native.npmInstaller, ...digest(withScript) } }, async () => new Response(withScript)))
 })
 
@@ -152,7 +152,7 @@ test('artifact defaults distinguish response, stalled transfer and bounded sourc
   assert(delays.some(value => value > 590000 && value <= 600000))
   assert(delays.includes(30000)); assert(delays.includes(60000))
   delays.length = 0
-  await boundedFetch('https://relay.xyxfood.xyz/v1/update-policy', 256 * 1024, async () => new Response('{}'))
+  await boundedFetch('https://h-wxrelay.1day.wang/v1/update-policy', 256 * 1024, async () => new Response('{}'))
   assert(delays.every(value => value <= 15000), 'small metadata never inherits long artifact wait')
 })
 
@@ -190,7 +190,7 @@ test('npm is not permitted through the generic catalog fetch helper', async () =
 })
 test('source policy rejects mutable tags, arbitrary packages and invalid metadata before fetch', async () => {
   for (const source of [null, {...release.npmInstaller,version:'latest'}, {...release.npmInstaller,sha256:'x'}, {...release.npmInstaller,bytes:33*1024*1024},
-    {...release.npmInstaller,url:release.npmInstaller.url+'?x=1'}, {...release.npmInstaller,url:release.npmInstaller.url.replace('dsh-wechat-remote/-','other/-')}]) {
+    {...release.npmInstaller,url:release.npmInstaller.url+'?x=1'}, {...release.npmInstaller,url:release.npmInstaller.url.replace('dsh-lxj-remote-installer/-','other/-')}]) {
     const r={...release,npmInstaller:source}
     assert.throws(()=>validateCatalog(catalog(r)))
     await assert.rejects(downloadRelease(r,async()=>assert.fail('must reject before network')))

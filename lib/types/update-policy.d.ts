@@ -5,7 +5,7 @@
  * or withdrawn releases exclude a target. Never guess failures from missing tests.
  */
 export declare const UPDATE_SCHEMA = 1;
-export declare const RELEASE_REPOSITORY = "https://github.com/martinbear1/dsh-wechat-remote";
+export declare const RELEASE_REPOSITORY = "https://github.com/terrywangt/dsh-lxj-remote";
 export type Severity = 'none' | 'info' | 'recommended' | 'required' | 'unknown';
 export interface RuntimeVersion {
     agentKind: string;

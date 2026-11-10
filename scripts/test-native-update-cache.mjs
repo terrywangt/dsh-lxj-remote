@@ -12,7 +12,7 @@ function fixture(t, outer = true) {
   const directory = path.join(home, 'harness-remote-updates', 'native-web')
   fs.mkdirSync(directory, { recursive: true })
   const artifacts = nativeReleaseFixture(), release = artifacts.release
-  const bundle = outer ? 'dsh-wechat-remote' : '@harness-remote/dsh-wechat-remote'
+  const bundle = outer ? 'dsh-lxj-remote-installer' : 'dsh-lxj-remote'
   const key = `${outer ? 'bundle' : 'core'}-${release.version}-${(outer ? release.npmInstaller : release.asset).sha256}`
   const target = path.join(directory, key), file = path.join(target, 'release.tgz')
   const flat = path.join(directory, key + '.tgz'), bytes = outer ? artifacts.outer : artifacts.core

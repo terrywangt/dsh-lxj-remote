@@ -30,6 +30,7 @@ async function fixture({ autoPong = true, stalledUpgrade = false, fetchImpl } = 
   let drop = stalledUpgrade
   let enrollments = 0
   let connections = 0
+  let handshakeAttempts = 0
   let disconnects = 0
   let pings = 0
   const states = []
@@ -43,6 +44,7 @@ async function fixture({ autoPong = true, stalledUpgrade = false, fetchImpl } = 
   })
   const relayPort = await listen(server)
   const proxy = createTcpServer(downstream => {
+    handshakeAttempts++
     const upstream = tcpConnect({ host: '127.0.0.1', port: relayPort })
     for (const socket of [downstream, upstream]) {
       tcpSockets.add(socket)
@@ -73,7 +75,7 @@ async function fixture({ autoPong = true, stalledUpgrade = false, fetchImpl } = 
   })
   return {
     agent, webSockets, states,
-    counters: () => ({ enrollments, connections, disconnects, pings }),
+    counters: () => ({ enrollments, connections, disconnects, pings, handshakeAttempts }),
     identity: () => readFileSync(identityPath, 'utf8'),
     cutUpstream() { drop = true; for (const socket of webSockets.clients) socket.terminate() },
     restore() { drop = false },
@@ -128,8 +130,13 @@ try {
     await until(() => stalled.states.some(s => s.state === 'offline'), 'stalled HTTP upgrade did not time out')
     stalled.restore()
     await until(() => stalled.agent.snapshot().state === 'online', 'stalled upgrade did not recover')
-    assert(stalled.counters().enrollments >= 2)
-    console.log('PASS non-responsive WebSocket handshake is bounded and retried')
+    // The retry is proven at the transport: a stalled handshake is retried
+    // with a new WebSocket upgrade. It deliberately does NOT re-POST
+    // /v1/agents/enroll, because that would rotate the still-valid single-use
+    // pairing ticket the phone may already be scanning.
+    assert(stalled.counters().handshakeAttempts >= 2, 'stalled handshake was never retried')
+    assert.equal(stalled.counters().enrollments, 1, 'a bounded handshake retry must not re-enroll')
+    console.log('PASS non-responsive WebSocket handshake is bounded and retried without rotating the ticket')
   } finally { await stalled.close() }
 
   const wrongPong = await fixture({ autoPong: false })

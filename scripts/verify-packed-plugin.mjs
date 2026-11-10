@@ -148,14 +148,14 @@ export function verifyPackedPlugin(existingArchive) {
     const metadata = JSON.parse(execFileSync('tar', ['-xOf', archive, 'package/package.json'],
       { encoding: 'utf8', windowsHide: true, maxBuffer: 65536 }))
     const bytes = fs.readFileSync(archive), asset = { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'),
-      url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${metadata.version}/packed-plugin.tgz` }
+      url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${metadata.version}/packed-plugin.tgz` }
     // Reuse the real updater's size/path/type/manifest policy before extraction,
     // rather than inventing a second, subtly different tar security validator.
     assert(trustedReleaseAsset(asset, metadata.version), 'Packed artifact exceeds update policy')
     auditArchive(bytes, { version: metadata.version, asset })
     execFileSync('tar', ['-xzf', archive, '-C', temporary], { windowsHide: true })
     const directory = path.join(temporary, 'package'), inspected = inspectPackedPlugin(directory)
-    assert.equal(inspected.manifest.name, '@harness-remote/dsh-wechat-remote')
+    assert.equal(inspected.manifest.name, 'dsh-lxj-remote')
     // Outside the repository, with copies rather than links back to its tree.
     // A separate host Zod copy exercises the native registry's cross-package
     // schema projection; it must not supply the plugin's own runtime import.

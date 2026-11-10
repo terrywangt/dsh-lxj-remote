@@ -2,14 +2,18 @@
 # The relative gate entry mounts the embedded core and its generated Host face
 # as one fiber. The nested core manifest also owns the same native client half.
 # It never resolves another profile's core package.
-# Assistant subpaths are this outer package's own exports. Native and profile
-# resolution both preserve Node self-reference before considering other packages.
+# Assistant subpaths are this outer installer package's own exports
+# (dsh-lxj-remote-installer), which is deliberately a different package id from
+# the embedded core (dsh-lxj-remote). Keeping the two ids apart is what lets
+# DSH's patch composition hold both gate rows for both owners, so a profile
+# that registers the core and the CLI installer at once is detected instead of
+# silently double-mounted.
 - insert:
     - id: gate
       name: './native/index.js'
     - id: wechat-clawbot
-      name: 'dsh-wechat-remote/clawbot'
+      name: 'dsh-lxj-remote-installer/clawbot'
     - id: harness-group-assistants
-      name: 'dsh-wechat-remote/group-assistants'
+      name: 'dsh-lxj-remote-installer/group-assistants'
     - id: harness-resource-library
-      name: 'dsh-wechat-remote/resource-library'
+      name: 'dsh-lxj-remote-installer/resource-library'

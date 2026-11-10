@@ -92,7 +92,7 @@ async function fetchBytes(url: string, maxBytes: number, fetcher: typeof fetch,
 export async function boundedFetch(url: string, maxBytes: number, fetcher = fetch): Promise<Buffer> {
   // Catalog/legacy helper keeps its existing trust boundary. npm is allowed ONLY
   // by the explicit installer download path below, not by broadening this helper.
-  return fetchBytes(url, maxBytes, fetcher, [...githubHosts, 'relay.xyxfood.xyz'],
+  return fetchBytes(url, maxBytes, fetcher, [...githubHosts, 'h-wxrelay.1day.wang'],
     Date.now() + (maxBytes <= 256 * 1024 ? 10000 : 60000), {})
 }
 
@@ -151,7 +151,7 @@ export function auditArchive(archive: Buffer, release: Release): void {
   const files = visitArchive(archive, (name, data) => {
     if (name === 'package/package.json') manifest = readManifest(data)
   })
-  if (!manifest || manifest.name !== '@harness-remote/dsh-wechat-remote' || manifest.version !== release.version
+  if (!manifest || manifest.name !== 'dsh-lxj-remote' || manifest.version !== release.version
       || !files.has('package/lib/index.js') || !files.has('package/lib/client.js')) throw new Error('更新包名称、版本或入口不匹配')
   const scripts = manifest.scripts as Record<string, string> | undefined
   if (['preinstall', 'install', 'postinstall', 'prepare'].some(name => scripts?.[name])) throw new Error('更新包包含不允许的安装脚本')
@@ -170,7 +170,7 @@ export function pluginFromInstaller(archive: Buffer, release: Release): Buffer {
       plugin = Buffer.from(data)
     }
   })
-  if (!manifest || manifest.name !== 'dsh-wechat-remote' || manifest.version !== release.npmInstaller!.version || !plugin) throw new Error('备用安装包名称、版本或内置插件不匹配')
+  if (!manifest || manifest.name !== 'dsh-lxj-remote-installer' || manifest.version !== release.npmInstaller!.version || !plugin) throw new Error('备用安装包名称、版本或内置插件不匹配')
   auditArchive(plugin, release)
   return plugin
 }
@@ -199,7 +199,7 @@ export function auditNativeArchive(archive: Buffer, version: string): void {
     if (name === 'package/assets/release.json') metadata = readManifest(data)
     if (name === 'package/assets/plugin.tgz') plugin = Buffer.from(data)
   })
-  if (manifest?.name !== 'dsh-wechat-remote' || manifest.version !== version
+  if (manifest?.name !== 'dsh-lxj-remote-installer' || manifest.version !== version
       || manifest.dsh?.bundle?.patch !== './cordis.patch.yml'
       || !files.has('package/native/lib/index.js') || !files.has('package/native/lib/client.js')
       || !files.has('package/cordis.patch.yml') || !plugin || metadata?.version !== version

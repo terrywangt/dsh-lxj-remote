@@ -16,8 +16,8 @@ export interface OtherEndpointInfo {
   update: { state: 'available' | 'none' | 'unknown' | 'not-installed'; targetVersion?: string }
 }
 
-const packages = ['dsh-wechat-remote', '@harness-remote/dsh-wechat-remote'] as const
-const catalogUrl = 'https://relay.xyxfood.xyz/v1/update-policy'
+const packages = ['dsh-lxj-remote-installer', 'dsh-lxj-remote'] as const
+const catalogUrl = 'https://h-wxrelay.1day.wang/v1/update-policy'
 const validVersion = (value: unknown): value is string => {
   if (typeof value !== 'string' || value.length > 80) return false
   try { compareVersions(value, value); return true } catch { return false }

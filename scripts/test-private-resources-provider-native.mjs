@@ -36,9 +36,9 @@ if (!childStage) {
       extract(header.files.dsh, 'dsh')
       // Preserve emitted module paths and the real package self-reference used
       // by ownPromptModule; bundling native.ts into a fixture masks this seam.
-      const packageDirectory = path.join(work, 'dsh/node_modules/dsh-wechat-remote')
+      const packageDirectory = path.join(work, 'dsh/node_modules/dsh-lxj-remote-installer')
       fs.mkdirSync(packageDirectory, { recursive: true })
-      fs.writeFileSync(path.join(packageDirectory, 'package.json'), JSON.stringify({ name: 'dsh-wechat-remote', type: 'module', exports: {
+      fs.writeFileSync(path.join(packageDirectory, 'package.json'), JSON.stringify({ name: 'dsh-lxj-remote-installer', type: 'module', exports: {
         './resource-library': './native/lib/resource-library-component.js',
         './private-resource-prompt': './native/lib/private-resources/native.js',
         './resource-library/chat-compaction': './native/lib/private-resources/chat-compaction.js',
@@ -78,7 +78,7 @@ if (!childStage) {
   const { default: Commands } = await load('@deepseek-ai/dsh-commands')
   const { default: Web } = await load('@deepseek-ai/dsh-web')
   const { SkillRegistry } = await load('@deepseek-ai/dsh-skill')
-  const componentPath = require.resolve('dsh-wechat-remote/resource-library')
+  const componentPath = require.resolve('dsh-lxj-remote-installer/resource-library')
   const { WechatResourcesService } = await import(pathToFileURL(path.join(path.dirname(componentPath), 'private-resources/service.js')).href)
   const { NativeResourceRegistry } = await import(pathToFileURL(path.join(path.dirname(componentPath), 'private-resources/native.js')).href)
   const { parseResourcePreset } = await import(pathToFileURL(path.join(path.dirname(componentPath), 'private-resources/contract.js')).href)
@@ -132,7 +132,7 @@ if (!childStage) {
           ? { ...original, config: { ...original.config, prefix: '{{harness_private_resource_prompt}}' } }
           : original, `complete native standard declaration is preserved: ${original.id}`)
       }
-      assert.deepEqual(captured.plugins.at(-1), { id: 'harness-private-resource-data', name: 'dsh-wechat-remote/private-resource-prompt', config: { text: resource.value.systemPrompt } })
+      assert.deepEqual(captured.plugins.at(-1), { id: 'harness-private-resource-data', name: 'dsh-lxj-remote-installer/private-resource-prompt', config: { text: resource.value.systemPrompt } })
       assert.deepEqual(fullStandard, beforeStandard)
     } finally { await recorder.close() }
     assert.equal(disposed, true)
@@ -215,7 +215,7 @@ if (!childStage) {
     assert.equal(optionalReader().identity.nodeId, identity.nodeId)
     await oldProbe.dispose()
     const initialCurrentCalls = currentCalls
-    await root.loader.root.create({ id: 'resourceFixture', name: 'dsh-wechat-remote/resource-library' })
+    await root.loader.root.create({ id: 'resourceFixture', name: 'dsh-lxj-remote-installer/resource-library' })
     resourceFiber = root.loader.resolve('resourceFixture').fiber
     await bounded(root.loader.await(), 'native resource component startup must settle')
     const service = root.get('wechatResources')
@@ -365,7 +365,7 @@ if (!childStage) {
     assert.equal((await root.get('wechatResourceAssistants').list(timeoutSignal()))[0].state, 'installed')
     await resourceFiber.dispose()
     assert.deepEqual(await readResourceAssistantDefinitions(root, timeoutSignal()), descriptions, 'component off keeps verified business definitions readable')
-    await root.loader.root.create({ id: 'resourceFixture', name: 'dsh-wechat-remote/resource-library' })
+    await root.loader.root.create({ id: 'resourceFixture', name: 'dsh-lxj-remote-installer/resource-library' })
     resourceFiber = root.loader.resolve('resourceFixture').fiber
     await bounded(root.loader.await(), 'resource restart must not deadlock group backend')
     for (let attempt = 0; attempt < 200; attempt++) {

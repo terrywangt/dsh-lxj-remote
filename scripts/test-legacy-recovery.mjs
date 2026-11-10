@@ -143,8 +143,8 @@ async function protocolCase(name, mutation, expectedFailure, version = '1.7.13',
     await writeJson(path.join(job.directory, 'authorized.json'), { id: job.id })
     await writeJson(path.join(job.directory, 'worker-ready.json'), { id: job.id, origin: request.workerOrigin })
     await writeJson(path.join(job.directory, 'restarted-process.json'), processRecord(children[0].pid))
-    const manifest = path.join(job.profile, 'node_modules/@harness-remote/dsh-wechat-remote/package.json')
-    await fs.mkdir(path.dirname(manifest), { recursive: true }); await writeJson(manifest, { name: '@harness-remote/dsh-wechat-remote', version })
+    const manifest = path.join(job.profile, 'node_modules/dsh-lxj-remote/package.json')
+    await fs.mkdir(path.dirname(manifest), { recursive: true }); await writeJson(manifest, { name: 'dsh-lxj-remote', version })
     for (const file of ['failure.json', 'rollback-failure.json']) await writeJson(path.join(job.directory, file), failure)
     await writeJson(path.join(job.directory, 'result.json'), result)
     const finish = async () => { await writeJson(path.join(job.directory, 'restarted-process.json'), processRecord(children[samePid ? 0 : 1].pid)); phase = 'attention' }

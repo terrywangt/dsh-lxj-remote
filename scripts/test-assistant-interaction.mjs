@@ -150,7 +150,7 @@ test('native preview really appends new interaction guidance and retains inherit
     assert.equal(plugins[0].config.complete, false)
     assert.equal(plugins[0].config.includeRuntimeContext, true)
     assert.deepEqual(plugins.slice(1, -1), base.slice(1))
-    assert.deepEqual(plugins.at(-1), { id: 'harness-collaboration', name: '@harness-remote/dsh-wechat-remote/collaboration' })
+    assert.deepEqual(plugins.at(-1), { id: 'harness-collaboration', name: 'dsh-lxj-remote/collaboration' })
     assert.equal(base[0].config.prefix, 'Inherited native policy')
     // Use the actual native generator, not just the shared text helper, for
     // every built-in profession plus a newly authored creator/custom mode.

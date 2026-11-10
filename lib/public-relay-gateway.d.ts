@@ -31,6 +31,11 @@ export interface PublicRelayGatewayOptions {
     readonly onDiagnostic?: (level: 'info' | 'warn', message: string) => void;
     /** Explicit test/self-host allowlist; product builds use the pinned OSS origin. */
     readonly trustedObjectOrigins?: readonly string[];
+    /** Cross-process relay transport lease, owned by the host gate. */
+    readonly lease?: {
+        readonly enabled: boolean;
+        readonly directory?: string;
+    };
 }
 export declare class PublicRelayGateway {
     readonly agent: PublicRelayAgent;

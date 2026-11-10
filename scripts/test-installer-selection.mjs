@@ -12,7 +12,7 @@ import { assessUpdate, releaseMatches, validateCatalog } from '../installer/lib/
 const now = Date.now()
 const release = (version = '1.7.2', extra = {}) => ({ version, channel: 'stable',
   dsh: ['0.1.5-rc.1'], platforms: ['windows', 'macos', 'linux'], architectures: ['x64'],
-  asset: { url: `https://github.com/martinbear1/dsh-wechat-remote/releases/download/v${version}/plugin.tgz`,
+  asset: { url: `https://github.com/terrywangt/dsh-lxj-remote/releases/download/v${version}/plugin.tgz`,
     sha256: 'a'.repeat(64), bytes: 1 }, ...extra })
 const catalog = (releases = [release()], extra = {}) => ({ schemaVersion: 1, revision: 'installer-test',
   issuedAt: now - 1000, expiresAt: now + 60000, releases, blocked: [], retiredDsh: [], ...extra })
@@ -100,7 +100,7 @@ await test('missing remote artifact is skipped and pinned artifact cannot be rep
 })
 
 function archiveFor(version) {
-  const files = [['package/package.json', JSON.stringify({ name: '@harness-remote/dsh-wechat-remote', version })],
+  const files = [['package/package.json', JSON.stringify({ name: 'dsh-lxj-remote', version })],
     ['package/lib/index.js', 'export {}'], ['package/lib/client.js', 'export {}']]
   const chunks = []
   for (const [name, content] of files) {

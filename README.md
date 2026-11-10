@@ -81,3 +81,25 @@ npm run test:public-relay
 ```
 
 上游许可证与第三方声明见 [LICENSE](LICENSE)、[THIRD-PARTY-NOTICES](THIRD-PARTY-NOTICES)。安全问题报告沿用 [SECURITY.md](SECURITY.md)。
+
+## 七、github: 直装与依赖闭包（本 fork 的关键差异）
+
+上游把 `node_modules` 整体 gitignore，但 `bundleDependencies` 只在 **npm registry tarball** 打包时才会被拷进包里；`github:owner/repo` 这条安装路径不会去 registry 拉这些依赖，于是装出来的插件缺少 `qrcode` / `ws` / `tweetnacl` / `zod`，gate 模块在加载阶段就报：
+
+``text
+Cannot find package 'qrcode' imported from .../lib/gate-runtime.js
+``
+
+这正是"同一个插件有人能用、有人扫完码连不上"的根因。本 fork 把运行时依赖闭包（67 个包，约 8 MB；排除 40 MB 的 `pnpm`，它只是安装器自用、`lib/` 从不 import）纳入 git 跟踪，并写进 `package.json` 的 `files`，让两条安装路径产出同一份字节。清单见 `vendored-deps.json`，生成脚本：
+
+``text
+node scripts/vendor-runtime-deps.mjs .
+``
+
+注意：`npm ci` 会清空 `node_modules`（包括被跟踪的闭包）。跑完 `npm ci` / `npm install` 之后，用下面的命令恢复跟踪内容，再提交：
+
+``text
+git checkout -- node_modules
+``
+
+因此开发流程建议：先 `npm ci` 构建（`npm run bundle`），验证用 `npm run verify`；只有在确实需要更新依赖闭包时才提交 `node_modules` 下的变更。

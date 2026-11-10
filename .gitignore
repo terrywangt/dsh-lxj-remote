@@ -1,4 +1,3 @@
-node_modules/
 miniprogram_npm/
 *.log
 .DS_Store
@@ -11,3 +10,78 @@ artifacts/
 evidence.json
 
 installer/native/
+
+# vendored runtime closure: keeps the github: install channel loadable
+# replaces the upstream "node_modules/" rule: git can never re-include a child
+# of an excluded directory, so only node_modules' children are ignored here and
+# the runtime closure below is re-included. Anything inside a whitelisted
+# package (including its nested node_modules) stays tracked.
+# scripts/vendor-runtime-deps.mjs regenerates this block.
+/node_modules/*
+!/node_modules/@types/debug
+!/node_modules/@types/mdast
+!/node_modules/@types/ms
+!/node_modules/@types/unist
+!/node_modules/ansi-regex
+!/node_modules/ansi-styles
+!/node_modules/camelcase
+!/node_modules/character-entities
+!/node_modules/cliui
+!/node_modules/color-convert
+!/node_modules/color-name
+!/node_modules/debug
+!/node_modules/decamelize
+!/node_modules/decode-named-character-reference
+!/node_modules/dequal
+!/node_modules/devlop
+!/node_modules/dijkstrajs
+!/node_modules/emoji-regex
+!/node_modules/find-up
+!/node_modules/get-caller-file
+!/node_modules/is-fullwidth-code-point
+!/node_modules/jpeg-js
+!/node_modules/locate-path
+!/node_modules/mdast-util-from-markdown
+!/node_modules/mdast-util-to-string
+!/node_modules/micromark
+!/node_modules/micromark-core-commonmark
+!/node_modules/micromark-factory-destination
+!/node_modules/micromark-factory-label
+!/node_modules/micromark-factory-space
+!/node_modules/micromark-factory-title
+!/node_modules/micromark-factory-whitespace
+!/node_modules/micromark-util-character
+!/node_modules/micromark-util-chunked
+!/node_modules/micromark-util-classify-character
+!/node_modules/micromark-util-combine-extensions
+!/node_modules/micromark-util-decode-numeric-character-reference
+!/node_modules/micromark-util-decode-string
+!/node_modules/micromark-util-encode
+!/node_modules/micromark-util-html-tag-name
+!/node_modules/micromark-util-normalize-identifier
+!/node_modules/micromark-util-resolve-all
+!/node_modules/micromark-util-sanitize-uri
+!/node_modules/micromark-util-subtokenize
+!/node_modules/micromark-util-symbol
+!/node_modules/micromark-util-types
+!/node_modules/ms
+!/node_modules/p-limit
+!/node_modules/p-locate
+!/node_modules/p-try
+!/node_modules/path-exists
+!/node_modules/pngjs
+!/node_modules/qrcode
+!/node_modules/require-directory
+!/node_modules/require-main-filename
+!/node_modules/set-blocking
+!/node_modules/string-width
+!/node_modules/strip-ansi
+!/node_modules/tweetnacl
+!/node_modules/unist-util-stringify-position
+!/node_modules/which-module
+!/node_modules/wrap-ansi
+!/node_modules/ws
+!/node_modules/y18n
+!/node_modules/yargs
+!/node_modules/yargs-parser
+!/node_modules/zod

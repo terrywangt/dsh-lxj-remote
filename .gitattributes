@@ -1,2 +1,4 @@
 # Release fixtures are hashed byte-for-byte; never normalize their line endings.
 /tests/fixtures/private-resources/*.json -text
+# vendored npm packages are byte-exact; never normalize their line endings
+/node_modules/** -text

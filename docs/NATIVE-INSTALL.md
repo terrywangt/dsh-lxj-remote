@@ -1,5 +1,13 @@
 # 安装与更新
 
+> **本 fork 的安装通道现状（先看这条）**：`dsh-lxj-remote` 与 `dsh-lxj-remote-installer` 都还没有发布到 npm registry（发布需要 npm 账号授权，当前机器没有该凭据），所以下面所有 `包名@版本` / `npx -y 包名@版本` 的 registry 写法在本文档fork 里暂时不可用。当前可用写法：
+>
+> ```text
+> github:terrywangt/dsh-lxj-remote
+> ```
+>
+> 或在 DSH 插件页填上面的 `github:` 形式；离线安装下载 [Release](https://github.com/terrywangt/dsh-lxj-remote/releases/tag/v1.0.0) 的 `dsh-lxj-remote-1.0.0.tgz`。本文其余章节保留上游原文，等 fork 发布到 npm 后即可照做。
+
 ## 新装
 
 在 DSH 的 **插件 → 添加插件** 中输入：

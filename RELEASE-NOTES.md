@@ -35,10 +35,12 @@ Fork 自 `martinbear1/dsh-wechat-remote` v1.7.16（commit `c1de4604`，MIT）。
 ## 安装
 
 ```text
-DSH → 插件 → 添加插件 → dsh-lxj-remote@1.0.0
+DSH → 插件 → 添加插件 → github:terrywangt/dsh-lxj-remote
 ```
 
-或 GitHub 直装：`github:terrywangt/dsh-lxj-remote`。`lib/` 构建产物随仓库提交，两条路径都无需在本机重新构建。
+本 fork 尚未发布到 npm registry（需要 npm 账号授权），因此 `dsh-lxj-remote@1.0.0` 这种 registry 写法暂不可用；离线场景请下载 Release 附带的 `dsh-lxj-remote-1.0.0.tgz`。
+
+`lib/` 构建产物与运行时依赖闭包（`vendored-deps.json` 列出的 67 个包）都随仓库提交，因为 `github:` 安装会把仓库本地打包、不会为 git 源拉取 `bundleDependencies`——缺依赖会让 gate 在加载阶段报 `Cannot find package 'qrcode'`（上游 1.7.16 的实际故障）。
 
 ## 上游差异一览
 

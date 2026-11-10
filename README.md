@@ -12,17 +12,15 @@
 
 ## 一、安装：在电脑 DSH 中添加插件
 
-打开电脑上的 **DSH → 插件 → 添加插件**，粘贴下面的包名，安装并启用（Web 与 Desktop 同一包名）：
-
-```text
-dsh-lxj-remote@1.0.0
-```
-
-若你的 DSH 版本要求填写源码地址，使用 GitHub 直装格式：
+打开电脑上的 **DSH → 插件 → 添加插件**，粘贴下面这一行，安装并启用（Web 与 Desktop 同一包名）：
 
 ```text
 github:terrywangt/dsh-lxj-remote
 ```
+
+实测用的是 GitHub 直装形式：本 fork **尚未发布到 npm registry**（发布 `dsh-lxj-remote` 这个包名需要 npm 账号授权，当前机器没有该凭据），所以 `dsh-lxj-remote@1.0.0` 这种 registry 写法现在还不能用；一旦发布，两种写法等价。需要离线安装时可下载 [Release](https://github.com/terrywangt/dsh-lxj-remote/releases/tag/v1.0.0) 里的 `dsh-lxj-remote-1.0.0.tgz`。
+
+> 为什么必须提交 `lib/` 和依赖闭包：`github:` 安装会把仓库克隆后本地打包，此时 **不会** 从 registry 拉 `bundleDependencies`，而 `lib/gate-runtime.js` 里 `import 'qrcode'` 这类裸模块引用会直接让 gate 加载失败（上游 1.7.16 在 live profile 上正是这个错误：`Cannot find package 'qrcode' imported from …/lib/gate-runtime.js`）。本 fork 因此把运行时依赖闭包（`node_modules/` 下 67 个包，见 `vendored-deps.json`）连同 `lib/` 一起提交进 git，两条安装通道才都可用。重装依赖后请运行 `node scripts/vendor-runtime-deps.mjs .` 重新生成闭包与 ignore 规则。
 
 按安装结果确认是否已生效；如提示需要重启，请结束任务后正常重启对应 DSH，然后打开 **设置 → 微信连接**，或进入插件详情页。
 
